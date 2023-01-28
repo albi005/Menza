@@ -1,6 +1,4 @@
-﻿<p>
-    @_next
-</p>
+﻿<SignInButton />
 
 Milyen volt?
 
@@ -17,16 +15,3 @@ Milyen volt?
     <span class="fa fa-star"></span>
     <span class="fa fa-star"></span>
 </div>
-
-
-@code{
-
-    private string? _next;
-    
-    protected override async Task OnInitializedAsync()
-    {
-        HttpClient httpClient = new();
-        _next = await httpClient.GetStringAsync("https://localhost:7181/next");
-    }
-
-}

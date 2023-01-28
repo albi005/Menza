@@ -1,0 +1,11 @@
+﻿@inject IJSRuntime JsRuntime
+
+<div id="google-signin-button"></div>
+
+@code {
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            await JsRuntime.InvokeVoidAsync("renderGoogleButton");
+    }
+}
