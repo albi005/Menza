@@ -1,0 +1,32 @@
+﻿<p>
+    @_next
+</p>
+
+Milyen volt?
+
+<style>
+.checked {
+  color: gold;
+}
+</style>
+
+<div>
+    <span class="fa fa-star checked"></span>
+    <span class="fa fa-star checked"></span>
+    <span class="fa fa-star checked"></span>
+    <span class="fa fa-star"></span>
+    <span class="fa fa-star"></span>
+</div>
+
+
+@code{
+
+    private string? _next;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient httpClient = new();
+        _next = await httpClient.GetStringAsync("https://localhost:7181/next");
+    }
+
+}

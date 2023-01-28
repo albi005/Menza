@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menza</title>
+    <base href="/" />
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <!--<link href="Menza.Client.styles.css" rel="stylesheet" />-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+<div style="display: flex; justify-content: end; overflow: hidden; height: 64px">
+    <div id="g_id_onload"
+         data-client_id="103920663096-kfjri04pm1lqeq523bdfskk7rd8d8mhv.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="pill"
+         data-theme="outline"
+         data-text="signin"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+</div>
+
+Mai ebéd:
+<p>
+    <b>
+        <span id="today"></span>
+    </b>
+</p>
+
+<div id="app"></div>
+
+<script async>
+    function handleCredentialResponse(response) {
+        DotNet.invokeMethod('Menza.Client', 'HandleCredential', response.credential);
+    }
+
+    async function asyncMain() {
+        let response = await fetch('https://localhost:7181/next');
+        document.getElementById('today').outerText = await response.text();
+    }
+
+    asyncMain();
+</script>
+<script src="_framework/blazor.webassembly.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+
+</html>
