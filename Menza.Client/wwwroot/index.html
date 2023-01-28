@@ -32,10 +32,10 @@
     </div>
 </div>
 
-Mai ebéd:
+<span id="label"></span>
 <p>
     <b>
-        <span id="today"></span>
+        <span id="nextMenu"></span>
     </b>
 </p>
 
@@ -48,7 +48,15 @@ Mai ebéd:
 
     async function asyncMain() {
         let response = await fetch('https://localhost:7181/next');
-        document.getElementById('today').outerText = await response.text();
+        let menu = await response.json();
+        let nextDate = new Date(menu.date);
+        let now = new Date();
+        if (nextDate.getDate() === now.getDate() && nextDate.getMonth() === now.getMonth() && nextDate.getFullYear() === now.getFullYear())
+            document.getElementById('label').outerText = 'Mai ebéd:';
+        else
+            document.getElementById('label').outerText = `Következő ebéd (${nextDate.toLocaleDateString('hu')}):`;
+            
+        document.getElementById('nextMenu').outerText = menu.value;
     }
 
     asyncMain();

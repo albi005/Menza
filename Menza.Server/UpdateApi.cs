@@ -3,44 +3,49 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Menza.Server;
 
-public static class UpdateApi
+[ApiController]
+[Route("/update")]
+public class UpdateController : ControllerBase
 {
-    public static void MapUpdater(this IEndpointRouteBuilder routes)
+    private readonly MenuRepository _menuRepository;
+
+    public UpdateController(MenuRepository menuRepository)
     {
-        routes.MapGet("/update", async (HttpContext ctx, [FromQuery] string sessionId, MenuRepository storageService) =>
+        _menuRepository = menuRepository;
+    }
+
+    [HttpGet]
+    public async Task Update([FromQuery] string sessionId)
+    {
+        HttpClient httpClient = new();
+
+        DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+        for (int i = -1; i <= 1; i++)
         {
-            //TODO: Authenticate
-            HttpClient httpClient = new();
+            DateOnly date = today.AddMonths(i);
 
-            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-            for (int i = -1; i <= 1; i++)
-            {
-                DateOnly date = today.AddMonths(i);
+            HttpRequestMessage httpRequestMessage =
+                new(HttpMethod.Post, "https://tata.eny.hu/index.php?m=directapi");
+            httpRequestMessage.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            httpRequestMessage.Headers.Add("Cookie", $"PHPSESSID={sessionId}");
+            httpRequestMessage.Content = new StringContent(
+                $$"""{"action":"studentorder","method":"loadOrders","tid":1,"type":"rpc","data":["2867","{{date.Year}}-{{date.Month:00}}-01"]}""");
 
-                HttpRequestMessage httpRequestMessage =
-                    new(HttpMethod.Post, "https://tata.eny.hu/index.php?m=directapi");
-                httpRequestMessage.Headers.Add("X-Requested-With", "XMLHttpRequest");
-                httpRequestMessage.Headers.Add("Cookie", $"PHPSESSID={sessionId}");
-                httpRequestMessage.Content = new StringContent(
-                    $$"""{"action":"studentorder","method":"loadOrders","tid":1,"type":"rpc","data":["2867","{{date.Year}}-{{date.Month:00}}-01"]}""");
+            HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
+            if (!httpResponseMessage.IsSuccessStatusCode) continue;
 
-                HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage);
-                if (!httpResponseMessage.IsSuccessStatusCode) continue;
+            string content = await httpResponseMessage.Content.ReadAsStringAsync();
 
-                string content = await httpResponseMessage.Content.ReadAsStringAsync();
+            IEnumerable<KeyValuePair<string, JsonNode?>>? jsonDays =
+                JsonNode.Parse(content)?["result"]?["dailymenu"]?
+                    .AsObject();
 
-                IEnumerable<KeyValuePair<string, JsonNode?>>? jsonDays =
-                    JsonNode.Parse(content)?["result"]?["dailymenu"]?
-                        .AsObject()
-                        .Where(x => x.Value!["19"] != null);
+            if (jsonDays?.Any() != true) continue;
 
-                if (jsonDays?.Any() != true) continue;
+            Dictionary<int, string?> days = jsonDays
+                .ToDictionary(x => int.Parse(x.Key), x => x.Value!["19"]?.GetValue<string>());
 
-                Dictionary<int, string> days = jsonDays
-                    .ToDictionary(x => int.Parse(x.Key), x => x.Value!["19"]!.GetValue<string>());
-
-                await storageService.UpdateMonth(date.Year, date.Month, days);
-            }
-        });
+            await _menuRepository.UpdateMonth(date.Year, date.Month, days);
+        }
     }
 }

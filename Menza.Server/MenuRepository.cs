@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Text.Json;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Menza.Server;
@@ -7,77 +6,65 @@ namespace Menza.Server;
 public class MenuRepository
 {
     private readonly IMemoryCache _cache;
-    private readonly Task _initialize;
-    private readonly ConcurrentDictionary<DateOnly, Dictionary<int, string>> _store = new();
+    private readonly Db _db;
 
-    public MenuRepository(IMemoryCache cache)
+    public MenuRepository(IMemoryCache cache, Db db)
     {
         _cache = cache;
-        _initialize = Initialize();
+        _db = db;
     }
 
-    public async Task<string?> GetNext()
-    {
-        await _initialize;
-
-        return _cache.GetOrCreate("nextMenu", cacheEntry =>
+    public async Task<Menu?> GetNext() =>
+        await _cache.GetOrCreateAsync(nameof(GetNext), async cacheEntry =>
         {
-            DateTime now = DateTime.Now;
-            DateOnly thisMonth = new(now.Year, now.Month, 1);
-
-            string? todaysMenu = _store.GetValueOrDefault(thisMonth)?.GetValueOrDefault(now.Day);
-            if (todaysMenu != null) return todaysMenu;
-
-            foreach (var month in _store.Where(x => x.Key >= thisMonth).OrderBy(x => x.Key))
-            {
-                foreach (var day in month.Value)
-                {
-                    if (month.Key == thisMonth && day.Key < now.Day) continue;
-
-                    cacheEntry.SetAbsoluteExpiration(
-                        new DateTimeOffset(
-                            month.Key.Year, month.Key.Month, day.Key, 0, 0, 0, default));
-                    return day.Value;
-                }
-            }
-
-            return null;
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+            Menu? menu = await _db.Menus
+                .OrderBy(m => m.Date)
+                .FirstOrDefaultAsync(m => m.Date >= today);
+            if (menu != null)
+                cacheEntry.SetAbsoluteExpiration(menu.Date.ToDateTime(default).AddDays(1));
+            return menu;
         });
-    }
 
-    public async Task UpdateMonth(int year, int month, Dictionary<int, string> days)
+    public async Task UpdateMonth(int year, int month, Dictionary<int, string?> days)
     {
-        await _initialize;
-        _store[new(year, month, 1)] = days;
-        _cache.Remove("nextMenu");
-        await File.WriteAllTextAsync($"menu{year}{month:00}.json", JsonSerializer.Serialize(days));
-    }
-
-    public async Task<Dictionary<int, string>?> GetMonth(int year, int month)
-    {
-        await _initialize;
-        return _store.GetValueOrDefault(new(year, month, 1));
-    }
-
-    private async Task Initialize()
-    {
-        foreach (MonthEntry entry in await Task.WhenAll(Directory
-                     .GetFiles(".", "menu??????.json")
-                     .Select(async s =>
-                     {
-                         string json = await File.ReadAllTextAsync(s);
-                         string fileName = Path.GetFileName(s);
-                         return new MonthEntry(
-                             new(
-                                 int.Parse(fileName[4..^7]),
-                                 int.Parse(fileName[8..^5]),
-                                 1),
-                             JsonSerializer.Deserialize<Dictionary<int, string>>(json)!);
-                     })))
+        if (!days.Any()) return;
+        
+        DateOnly firstDayOfMonth = new(year, month, 1);
+        DateOnly lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+        
+        Dictionary<int, Menu> menus = await _db.Menus
+            .Where(m => m.Date >= firstDayOfMonth && m.Date <= lastDayOfMonth)
+            .OrderBy(m => m.Date)
+            .ToDictionaryAsync(m => m.Date.Day);
+        
+        foreach (KeyValuePair<int,string?> day in days)
         {
-            _store[entry.Month] = entry.Days;
+            if (menus.TryGetValue(day.Key, out var menu))
+            {
+                if (day.Value == null)
+                    _db.Remove(menu);
+                else
+                    menu.Value = day.Value;
+            }
+            else if (day.Value != null)
+                _db.Menus.Add(new(new(year, month, day.Key), day.Value));
         }
-    }
-}
 
-public record MonthEntry(DateOnly Month, Dictionary<int, string> Days);
+        await _db.SaveChangesAsync();
+
+        _cache.Remove(nameof(GetNext));
+        _cache.Remove($"{nameof(GetMonth)}({year}, {month:00})");
+    }
+
+    public async Task<List<Menu>> GetMonth(int year, int month) =>
+        (await _cache.GetOrCreateAsync($"{nameof(GetMonth)}({year}, {month:00})", async _ =>
+        {
+            DateOnly firstDayOfMonth = new(year, month, 1);
+            DateOnly lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+            return await _db.Menus
+                .Where(m => m.Date >= firstDayOfMonth && m.Date <= lastDayOfMonth)
+                .OrderBy(m => m.Date)
+                .ToListAsync();
+        }))!;
+}
