@@ -1,38 +1,49 @@
-﻿@inject AuthService AuthService;
+﻿@using Menza.Shared
+@inject AuthService AuthService;
 @inject IJSRuntime JsRuntime;
-@inject HttpClient HttpClient;
 @inject NextMenuService NextMenuService;
+@inject VoteService VoteService;
+@inject MenuService MenuService;
 
 <div style="height: 100%; padding: 50vh 0" @ref="_list" id="list">
     @if (_all != null)
     {
         @for (int i = 0; i < _all.Count; i++)
         {
-            Menu menu = _all[i];
-            DrawContext? drawContext = _drawContexts?[i];
+            MenuAndVotes menu = _all[i];
+            bool selected = i == _selectedIndex;
             bool isNext = menu.Date == NextMenuService.NextMenu.Date;
+            bool isVisible = _visibleIndexes.Contains(i);
             <MenuView
                 Menu="@menu"
                 Rendered="@(isNext ? elementReference => _next = elementReference : null)"
                 IsNext="@isNext"
-                DrawContext="@drawContext" />
+                Selected="@selected"
+                LabelHeight="@(_labelHeights?[i])"
+                ContentHeight="@(_contentHeights?[i])"
+                IsVisible="@isVisible"
+                OnVote="OnVote"/>
         }
     }
 </div>
 
-@* @if (AuthService.IdToken == null) *@
-@* { *@
-@*     <SignInButton /> *@
-@* } *@
+@if (_isSigningIn && AuthService.IdToken == null)
+{
+    <SignInPopup Close="@(() => { _isSigningIn = false; StateHasChanged(); })"/>
+}
 
 @code {
     private ElementReference _list;
     private ElementReference _next;
     private bool _isSecondRender = true;
     private DotNetObjectReference<App>? _dotNetObjectReference;
-    private DrawContext[]? _drawContexts;
+    private double[]? _labelHeights;
+    private double[]? _contentHeights;
+    private int _selectedIndex;
+    private int[] _visibleIndexes = Array.Empty<int>();
+    private bool _isSigningIn;
 
-    private List<Menu>? _all;
+    private List<MenuAndVotes>? _all;
 
     protected override void OnInitialized()
     {
@@ -50,13 +61,33 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _all = await HttpClient.GetFromJsonAsync<List<Menu>>("https://localhost:7181/all");
+        _all = await MenuService.GetAll();
+    }
+
+    public async void OnVote(Vote vote)
+    {
+        if (AuthService.IdToken == null)
+        {
+            _isSigningIn = true;
+            StateHasChanged();
+            return;
+        }
+        await VoteService.Vote(vote);
+        _all = await MenuService.GetAll();
+        StateHasChanged();
+        await JsRuntime.InvokeVoidAsync("window.onscroll", null);
     }
 
     [JSInvokable]
-    public void Update(DrawContext[] drawContexts)
+    public void Update(Data data)
     {
-        _drawContexts = drawContexts;
+        _selectedIndex = data.SelectedIndex;
+        _labelHeights = data.LabelHeights;
+        _contentHeights = data.ContentHeights;
+        _visibleIndexes = data.VisibleIndexes;
         StateHasChanged();
     }
+
+    public record struct Data(int SelectedIndex, int[] VisibleIndexes, double[] LabelHeights, double[] ContentHeights);
+
 }

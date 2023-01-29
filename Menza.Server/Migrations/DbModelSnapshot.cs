@@ -28,7 +28,7 @@ namespace Menza.Server.Migrations
 
                     b.HasKey("Date");
 
-                    b.ToTable("Menus");
+                    b.ToTable("Menus", (string)null);
                 });
 
             modelBuilder.Entity("Menza.Server.Vote", b =>
@@ -44,7 +44,7 @@ namespace Menza.Server.Migrations
 
                     b.HasKey("Date", "Email");
 
-                    b.ToTable("Votes");
+                    b.ToTable("Votes", (string)null);
                 });
 
             modelBuilder.Entity("Menza.Server.Vote", b =>

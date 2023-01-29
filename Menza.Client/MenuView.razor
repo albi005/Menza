@@ -1,68 +1,106 @@
 ﻿@using System.Globalization
+@using Menza.Shared
 
 @{
-    float visibility = DrawContext?.Visibility ?? 0;
-    string height = this.DrawContext.HasValue
-        ? (DrawContext.Value.LabelHeight + 64 * visibility).ToString(CultureInfo.InvariantCulture) + "px"
+    string height = LabelHeight.HasValue
+        ? (Selected ? ContentHeight!.Value : LabelHeight.Value)
+            .ToString(CultureInfo.InvariantCulture) + "px"
         : "unset";
-    visibility = Math.Max(0, visibility - .2f) / .8f;
-    string shadow = Shadow.ComputeCssShadow(visibility * 12);
+    string shadow = Selected
+        ? "4px 8px 17px rgba(0, 0, 0, .3)"
+        : "none";
+    string backgroundColor = Selected
+        ? "white"
+        : "transparent";
+    string transition = _firstRender
+        ? "none"
+        : "background-color .25s, box-shadow .25s";
 }
 
-<div @ref="_elementReference" class="menu-surface" style="
+<div @ref="_elementReference" class="surface" style="
     max-width: 432px;
     margin: 16px;
-    background-color: #fff@(((byte)(visibility * 15)).ToString("x"));
+    transition: @transition;
+    background-color: @backgroundColor;
     box-shadow: @shadow">
-    <div class="content" style="overflow: hidden; height: @height">
-        <div class="date-and-menu">
-            <span id="label">
-                @if (IsNext)
-                {
-                    if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
+    <div style="overflow: hidden; height: @height; transition: height .25s linear">
+        <div class="content">
+            <div class="date-and-menu">
+                <span id="label">
+                    @if (IsNext)
                     {
-                        @:Mai ebéd
+                        if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
+                        {
+                            @:Mai ebéd
+                        }
+                        else
+                        {
+                            @:Következő ebéd - @Menu.Date.ToLongDateString()
+                        }
                     }
                     else
                     {
-                        @:Következő ebéd - @Menu.Date.ToLongDateString()
+                        @Menu.Date.ToLongDateString()
                     }
-                }
-                else
+                    @if (Menu.Rating.HasValue)
+                    {
+                        <div>
+                            @for (int i = 0; i < Menu.Rating; i++)
+                            {
+                                <span class="material-symbols-rounded" style="align-self: center">
+                                    star
+                                </span>
+                            }
+                        </div>
+                    }
+                </span>
+                <div>
+                    <b>@Menu.Menu</b>
+                </div>
+            </div>
+            @if (IsVisible)
+            {
+                <div style="margin-top: 8px">
+                    @if (new DateTime(Menu.Date.Year, Menu.Date.Month, Menu.Date.Day, 11, 35, 0) < DateTime.Now)
+                    {
+                        @:Szerinted milyen volt?
+                    }
+                    else
+                    {
+                        @:Szerinted milyen lesz?
+                    }
+                </div>
+                <div class="rating" style="height: 24px">
+                    <button class="rating-button @(Menu.MyVote == 1 ? "active" : null)" @onclick="@(() => Vote(1))">
+                        <i class="material-symbols-rounded">sentiment_very_dissatisfied</i>
+                    </button>
+                    <button class="rating-button @(Menu.MyVote == 2 ? "active" : null)" @onclick="@(() => Vote(2))">
+                        <i class="material-symbols-rounded">sentiment_dissatisfied</i>
+                    </button>
+                    <button class="rating-button @(Menu.MyVote == 3 ? "active" : null)" @onclick="@(() => Vote(3))">
+                        <i class="material-symbols-rounded">sentiment_neutral</i>
+                    </button>
+                    <button class="rating-button @(Menu.MyVote == 4 ? "active" : null)" @onclick="@(() => Vote(4))">
+                        <i class="material-symbols-rounded">sentiment_satisfied</i>
+                    </button>
+                    <button class="rating-button @(Menu.MyVote == 5 ? "active" : null)" @onclick="@(() => Vote(5))">
+                        <i class="material-symbols-rounded">sentiment_very_satisfied</i>
+                    </button>
+                </div>
+                @if (Menu.Rating.HasValue)
                 {
-                    @Menu.Date.ToLongDateString()
+                    <div style="margin-top: 16px">
+                        Átlag: @Menu.Rating (összesen @Menu.VoteCount darab szavazat)
+                    </div>
                 }
-            </span>
-            <div>
-                <b>@Menu.Value</b>
-            </div>
+            }
         </div>
-        @if (DrawContext?.Visibility > 0)
-        {
-            @:Milyen volt?
-            <div class="rating">
-                <button class="rating-button">
-                    <i class="material-symbols-outlined">sentiment_very_dissatisfied</i>
-                </button>
-                <button class="rating-button">
-                    <i class="material-symbols-outlined">sentiment_dissatisfied</i>
-                </button>
-                <button class="rating-button">
-                    <i class="material-symbols-outlined">sentiment_neutral</i>
-                </button>
-                <button class="rating-button">
-                    <i class="material-symbols-outlined">sentiment_satisfied</i>
-                </button>
-                <button class="rating-button">
-                    <i class="material-symbols-outlined">sentiment_very_satisfied</i>
-                </button>
-            </div>
-        }
     </div>
 </div>
 
 @code {
     private ElementReference _elementReference;
+    private bool _firstRender = true;
 
     [Parameter]
     public Action<ElementReference>? Rendered { get; set; }
@@ -71,16 +109,37 @@
     public bool IsNext { get; set; }
 
     [Parameter]
-    public DrawContext? DrawContext { get; set; }
+    public bool Selected { get; set; }
+
+    [Parameter]
+    public double? LabelHeight { get; set; }
+
+    [Parameter]
+    public double? ContentHeight { get; set; }
+    
+    [Parameter]
+    public bool IsVisible { get; set; }
 
     [Parameter]
     [EditorRequired]
-    public Menu Menu { get; set; } = null!;
+    public MenuAndVotes Menu { get; set; } = null!;
+    
+    [Parameter]
+    [EditorRequired]
+    public Action<Vote> OnVote { get; set; } = null!;
 
     protected override void OnAfterRender(bool firstRender)
     {
+        _firstRender = firstRender;
         if (firstRender)
             Rendered?.Invoke(_elementReference);
+    }
+    
+    private void Vote(int rating)
+    {
+        Menu.MyVote = rating;
+        OnVote(new(Menu.Date, rating));
+        StateHasChanged();
     }
 
 }

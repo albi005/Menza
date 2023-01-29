@@ -9,6 +9,6 @@ public class NextMenuService
     public async Task LoadNextMenu()
     {
         using HttpClient httpClient = new();
-        NextMenu = await httpClient.GetFromJsonAsync<Menu>("https://localhost:7181/next") ?? new(DateOnly.MaxValue, "we are dead");
+        NextMenu = await httpClient.GetFromJsonAsync<Menu>("https://localhost:7181/next") ?? new(DateOnly.MaxValue);
     }
 }

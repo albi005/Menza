@@ -1,0 +1,14 @@
+﻿<div class="scrim" @onclick="Close" sc>
+    <div class="surface">
+        A szavazáshoz jelentkezz be!
+        <SignInButton />
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    [EditorRequired]
+    public Action Close { get; set; } = null!;
+
+}

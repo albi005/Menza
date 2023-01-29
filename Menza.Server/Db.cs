@@ -17,10 +17,12 @@ public class Db : DbContext
 public record Menu(DateOnly Date, string Value)
 {
     public string Value { get; set; } = Value;
+    public List<Vote>? Votes { get; set; }
 }
 
 [PrimaryKey(nameof(Date), nameof(Email))]
 public record Vote(DateOnly Date, string Email, float Value)
 {
+    public float Value { get; set; } = Value;
     [ForeignKey(nameof(Date))] public Menu Menu { get; set; } = null!;
 }

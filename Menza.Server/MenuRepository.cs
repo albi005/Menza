@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Menza.Shared;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Menza.Server;
@@ -29,16 +30,16 @@ public class MenuRepository
     public async Task UpdateMonth(int year, int month, Dictionary<int, string?> days)
     {
         if (!days.Any()) return;
-        
+
         DateOnly firstDayOfMonth = new(year, month, 1);
         DateOnly lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-        
+
         Dictionary<int, Menu> menus = await _db.Menus
             .Where(m => m.Date >= firstDayOfMonth && m.Date <= lastDayOfMonth)
             .OrderBy(m => m.Date)
             .ToDictionaryAsync(m => m.Date.Day);
-        
-        foreach (KeyValuePair<int,string?> day in days)
+
+        foreach (KeyValuePair<int, string?> day in days)
         {
             if (menus.TryGetValue(day.Key, out var menu))
             {
@@ -68,12 +69,29 @@ public class MenuRepository
                 .OrderBy(m => m.Date)
                 .ToListAsync();
         }))!;
-    
-    public async Task<List<Menu>> GetAll() =>
+
+    public async Task<List<MenuAndVotes>> GetAll() =>
         (await _cache.GetOrCreateAsync(nameof(GetAll), async _ =>
         {
             return await _db.Menus
                 .OrderBy(m => m.Date)
+                .Select(m => new MenuAndVotes(
+                    m.Date,
+                    m.Value,
+                    m.Votes != null ? m.Votes.Average(v => v.Value) : null,
+                    null,
+                    m.Votes!.Count))
                 .ToListAsync();
         }))!;
+    
+    public async Task<List<MenuAndVotes>> GetAll(string email) =>
+        await _db.Menus
+            .OrderBy(m => m.Date)
+            .Select(m => new MenuAndVotes(
+                m.Date,
+                m.Value,
+                m.Votes != null ? m.Votes.Average(v => v.Value) : null,
+                m.Votes!.Any(v => v.Email == email) ? m.Votes!.First(v => v.Email == email).Value : null,
+                m.Votes!.Count))
+            .ToListAsync();
 }

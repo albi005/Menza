@@ -10,6 +10,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorageAsSingleton();
 builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<NextMenuService>();
+builder.Services.AddSingleton<VoteService>();
+builder.Services.AddSingleton<MenuService>();
 builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new(builder.HostEnvironment.BaseAddress) });
 
 var app = builder.Build();
