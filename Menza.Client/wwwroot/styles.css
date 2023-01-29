@@ -1,3 +1,48 @@
 html {
     background-color: beige;
+    font-family: Nunito, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/*hide scrollbar*/
+body::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.container {
+    max-width: 432px;
+    margin: 0 auto;
+}
+
+.menu-surface {
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 4px 8px 17px rgba(0, 0, 0, .3);
+    padding: 16px;
+}
+
+.rating-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    margin: 0;
+    padding: 0;
+}
+
+.rating-button:hover {
+    color: #f0ad4e;
+}
+
+.rating-button:active {
+    color: #f0ad4e;
 }

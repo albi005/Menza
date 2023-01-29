@@ -8,15 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
+        <PackageReference Include="Majorsoft.Blazor.Components.Common.JsInterop" Version="1.5.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.2" PrivateAssets="all" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Pages\Counter.razor" />
-      <_ContentIncludedByDefault Remove="Pages\FetchData.razor" />
-      <_ContentIncludedByDefault Remove="Pages\Index.razor" />
-      <_ContentIncludedByDefault Remove="wwwroot\sample-data\weather.json" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.26.0" />
     </ItemGroup>
 
 </Project>

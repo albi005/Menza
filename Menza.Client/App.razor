@@ -1,17 +1,62 @@
-﻿<SignInButton />
+﻿@inject AuthService AuthService;
+@inject IJSRuntime JsRuntime;
+@inject HttpClient HttpClient;
+@inject NextMenuService NextMenuService;
 
-Milyen volt?
-
-<style>
-.checked {
-  color: gold;
-}
-</style>
-
-<div>
-    <span class="fa fa-star checked"></span>
-    <span class="fa fa-star checked"></span>
-    <span class="fa fa-star checked"></span>
-    <span class="fa fa-star"></span>
-    <span class="fa fa-star"></span>
+<div style="height: 100%; padding: 50vh 0" @ref="_list" id="list">
+    @if (_all != null)
+    {
+        @for (int i = 0; i < _all.Count; i++)
+        {
+            Menu menu = _all[i];
+            DrawContext? drawContext = _drawContexts?[i];
+            bool isNext = menu.Date == NextMenuService.NextMenu.Date;
+            <MenuView
+                Menu="@menu"
+                Rendered="@(isNext ? elementReference => _next = elementReference : null)"
+                IsNext="@isNext"
+                DrawContext="@drawContext" />
+        }
+    }
 </div>
+
+@* @if (AuthService.IdToken == null) *@
+@* { *@
+@*     <SignInButton /> *@
+@* } *@
+
+@code {
+    private ElementReference _list;
+    private ElementReference _next;
+    private bool _isSecondRender = true;
+    private DotNetObjectReference<App>? _dotNetObjectReference;
+    private DrawContext[]? _drawContexts;
+
+    private List<Menu>? _all;
+
+    protected override void OnInitialized()
+    {
+        _dotNetObjectReference = DotNetObjectReference.Create(this);
+        AuthService.TokenChanged += () => InvokeAsync(StateHasChanged);
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        if (firstRender || !_isSecondRender || _all == null) return;
+        _isSecondRender = false;
+        await JsRuntime.InvokeVoidAsync("subscribe", _dotNetObjectReference);
+        await JsRuntime.InvokeVoidAsync("takeOver", _next);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _all = await HttpClient.GetFromJsonAsync<List<Menu>>("https://localhost:7181/all");
+    }
+
+    [JSInvokable]
+    public void Update(DrawContext[] drawContexts)
+    {
+        _drawContexts = drawContexts;
+        StateHasChanged();
+    }
+}

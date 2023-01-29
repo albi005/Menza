@@ -1,0 +1,86 @@
+﻿@using System.Globalization
+
+@{
+    float visibility = DrawContext?.Visibility ?? 0;
+    string height = this.DrawContext.HasValue
+        ? (DrawContext.Value.LabelHeight + 64 * visibility).ToString(CultureInfo.InvariantCulture) + "px"
+        : "unset";
+    visibility = Math.Max(0, visibility - .2f) / .8f;
+    string shadow = Shadow.ComputeCssShadow(visibility * 12);
+}
+
+<div @ref="_elementReference" class="menu-surface" style="
+    max-width: 432px;
+    margin: 16px;
+    background-color: #fff@(((byte)(visibility * 15)).ToString("x"));
+    box-shadow: @shadow">
+    <div class="content" style="overflow: hidden; height: @height">
+        <div class="date-and-menu">
+            <span id="label">
+                @if (IsNext)
+                {
+                    if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
+                    {
+                        @:Mai ebéd
+                    }
+                    else
+                    {
+                        @:Következő ebéd - @Menu.Date.ToLongDateString()
+                    }
+                }
+                else
+                {
+                    @Menu.Date.ToLongDateString()
+                }
+            </span>
+            <div>
+                <b>@Menu.Value</b>
+            </div>
+        </div>
+        @if (DrawContext?.Visibility > 0)
+        {
+            @:Milyen volt?
+            <div class="rating">
+                <button class="rating-button">
+                    <i class="material-symbols-outlined">sentiment_very_dissatisfied</i>
+                </button>
+                <button class="rating-button">
+                    <i class="material-symbols-outlined">sentiment_dissatisfied</i>
+                </button>
+                <button class="rating-button">
+                    <i class="material-symbols-outlined">sentiment_neutral</i>
+                </button>
+                <button class="rating-button">
+                    <i class="material-symbols-outlined">sentiment_satisfied</i>
+                </button>
+                <button class="rating-button">
+                    <i class="material-symbols-outlined">sentiment_very_satisfied</i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private ElementReference _elementReference;
+
+    [Parameter]
+    public Action<ElementReference>? Rendered { get; set; }
+
+    [Parameter]
+    public bool IsNext { get; set; }
+
+    [Parameter]
+    public DrawContext? DrawContext { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public Menu Menu { get; set; } = null!;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            Rendered?.Invoke(_elementReference);
+    }
+
+}
