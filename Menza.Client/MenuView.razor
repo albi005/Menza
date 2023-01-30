@@ -7,44 +7,52 @@
             .ToString(CultureInfo.InvariantCulture) + "px"
         : "unset";
     string shadow = Selected
-        ? "4px 8px 17px rgba(0, 0, 0, .3)"
-        : "none";
+        ? "shadow"
+        : "no-shadow";
     string backgroundColor = Selected
         ? "white"
         : "transparent";
     string transition = _firstRender
         ? "none"
-        : "background-color .25s, box-shadow .25s";
+        : "background-color .25s linear, box-shadow .25s linear";
+    string opacity = IsVisible
+        ? "1"
+        : "0";
 }
 
-<div @ref="_elementReference" class="surface" style="
-    max-width: 432px;
-    margin: 16px;
-    transition: @transition;
-    background-color: @backgroundColor;
-    box-shadow: @shadow">
-    <div style="overflow: hidden; height: @height; transition: height .25s linear">
-        <div class="content">
-            <div class="date-and-menu">
-                <span id="label">
-                    @if (IsNext)
-                    {
-                        if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
+<div style="margin: 16px">
+    <div @ref="_elementReference" class="surface @shadow" style="
+        max-width: 432px;
+        margin: auto;
+        transition: @transition;
+        background-color: @backgroundColor;
+        ">
+        <div style="overflow: hidden; height: @height; transition: height .25s linear">
+            <div class="content" style="@(IsNext ? null : $"opacity: {opacity}; transition: opacity .1s linear")">
+                <div class="always-visible">
+                    <div class="date-and-menu">
+                        @if (IsNext)
                         {
-                            @:Mai ebéd
+                            if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
+                            {
+                                @:Mai ebéd
+                            }
+                            else
+                            {
+                                @:Következő ebéd - @Menu.Date.ToLongDateString()
+                            }
                         }
                         else
                         {
-                            @:Következő ebéd - @Menu.Date.ToLongDateString()
+                            @Menu.Date.ToLongDateString()
                         }
-                    }
-                    else
-                    {
-                        @Menu.Date.ToLongDateString()
-                    }
+                        <div>
+                            <b>@Menu.Menu</b>
+                        </div>
+                    </div>
                     @if (Menu.Rating.HasValue)
                     {
-                        <div>
+                        <div style="opacity: .5; font-variation-settings: 'FILL' 1; color: darkgoldenrod; user-select: none">
                             @for (int i = 0; i < Menu.Rating; i++)
                             {
                                 <span class="material-symbols-rounded" style="align-self: center">
@@ -53,47 +61,44 @@
                             }
                         </div>
                     }
-                </span>
-                <div>
-                    <b>@Menu.Menu</b>
                 </div>
-            </div>
-            @if (IsVisible)
-            {
-                <div style="margin-top: 8px">
-                    @if (new DateTime(Menu.Date.Year, Menu.Date.Month, Menu.Date.Day, 11, 35, 0) < DateTime.Now)
-                    {
-                        @:Szerinted milyen volt?
-                    }
-                    else
-                    {
-                        @:Szerinted milyen lesz?
-                    }
-                </div>
-                <div class="rating" style="height: 24px">
-                    <button class="rating-button @(Menu.MyVote == 1 ? "active" : null)" @onclick="@(() => Vote(1))">
-                        <i class="material-symbols-rounded">sentiment_very_dissatisfied</i>
-                    </button>
-                    <button class="rating-button @(Menu.MyVote == 2 ? "active" : null)" @onclick="@(() => Vote(2))">
-                        <i class="material-symbols-rounded">sentiment_dissatisfied</i>
-                    </button>
-                    <button class="rating-button @(Menu.MyVote == 3 ? "active" : null)" @onclick="@(() => Vote(3))">
-                        <i class="material-symbols-rounded">sentiment_neutral</i>
-                    </button>
-                    <button class="rating-button @(Menu.MyVote == 4 ? "active" : null)" @onclick="@(() => Vote(4))">
-                        <i class="material-symbols-rounded">sentiment_satisfied</i>
-                    </button>
-                    <button class="rating-button @(Menu.MyVote == 5 ? "active" : null)" @onclick="@(() => Vote(5))">
-                        <i class="material-symbols-rounded">sentiment_very_satisfied</i>
-                    </button>
-                </div>
-                @if (Menu.Rating.HasValue)
+                @if (IsVisible)
                 {
-                    <div style="margin-top: 16px">
-                        Átlag: @Menu.Rating (összesen @Menu.VoteCount darab szavazat)
+                    <div style="margin-top: 24px">
+                        @if (new DateTime(Menu.Date.Year, Menu.Date.Month, Menu.Date.Day, 11, 35, 0) < DateTime.Now)
+                        {
+                            @:Szerinted milyen volt?
+                        }
+                        else
+                        {
+                            @:Szerinted milyen lesz?
+                        }
                     </div>
+                    <div style="height: 24px; user-select: none">
+                        <button class="rating-button @(GetIsActive(1))" @onclick="@(() => Vote(1))">
+                            <i class="material-symbols-rounded">sentiment_very_dissatisfied</i>
+                        </button>
+                        <button class="rating-button @(GetIsActive(2))" @onclick="@(() => Vote(2))">
+                            <i class="material-symbols-rounded">sentiment_dissatisfied</i>
+                        </button>
+                        <button class="rating-button @(GetIsActive(3))" @onclick="@(() => Vote(3))">
+                            <i class="material-symbols-rounded">sentiment_neutral</i>
+                        </button>
+                        <button class="rating-button @(GetIsActive(4))" @onclick="@(() => Vote(4))">
+                            <i class="material-symbols-rounded">sentiment_satisfied</i>
+                        </button>
+                        <button class="rating-button @(GetIsActive(5))" @onclick="@(() => Vote(5))">
+                            <i class="material-symbols-rounded">sentiment_very_satisfied</i>
+                        </button>
+                    </div>
+                    @if (Menu.Rating.HasValue)
+                    {
+                        <div style="margin-top: 16px">
+                            Átlag: @Menu.Rating.Value.ToString("0.0") (@Menu.VoteCount szavazat)
+                        </div>
+                    }
                 }
-            }
+            </div>
         </div>
     </div>
 </div>
@@ -116,14 +121,14 @@
 
     [Parameter]
     public double? ContentHeight { get; set; }
-    
+
     [Parameter]
     public bool IsVisible { get; set; }
 
     [Parameter]
     [EditorRequired]
     public MenuAndVotes Menu { get; set; } = null!;
-    
+
     [Parameter]
     [EditorRequired]
     public Action<Vote> OnVote { get; set; } = null!;
@@ -134,7 +139,7 @@
         if (firstRender)
             Rendered?.Invoke(_elementReference);
     }
-    
+
     private void Vote(int rating)
     {
         Menu.MyVote = rating;
@@ -142,4 +147,10 @@
         StateHasChanged();
     }
 
+    private string? GetIsActive(int rating)
+    {
+        if (!Menu.MyVote.HasValue) return null;
+        bool isActive = Math.Abs(Menu.MyVote.Value - rating) < 0.5;
+        return isActive ? "active" : null;
+    }
 }

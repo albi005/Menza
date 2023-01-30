@@ -27,8 +27,7 @@
 
 <div style="position: fixed; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center"
      id="tempNextMenu">
-    <div style="margin: 16px; width: 432px; background-color: white; box-shadow: 4px 8px 17px rgba(0, 0, 0, .3)"
-         class="surface">
+    <div style="margin: 16px; width: 432px; background-color: white" class="surface shadow">
         <span id="dateLabel"></span>
         <div>
             <b><span id="nextMenu"></span></b>
@@ -49,7 +48,7 @@
         let nextDate = new Date(menu.date);
         let now = new Date();
         if (nextDate.getDate() === now.getDate() && nextDate.getMonth() === now.getMonth() && nextDate.getFullYear() === now.getFullYear())
-            document.getElementById('dateLabel').outerText = 'Mai ebéd:';
+            document.getElementById('dateLabel').outerText = 'Mai ebéd';
         else
             document.getElementById('dateLabel').outerText = `Következő ebéd - ${nextDate.toLocaleDateString('hu', {dateStyle: "full"})}`;
 
@@ -100,7 +99,7 @@
                     closestDistance = distance;
                     closestIndex = i;
                 }
-                labelHeights.push(child.getElementsByClassName('date-and-menu')[0].clientHeight);
+                labelHeights.push(child.getElementsByClassName('always-visible')[0].clientHeight);
                 contentHeights.push(child.getElementsByClassName('content')[0].offsetHeight);
 
                 if (childRect.top < window.innerHeight && childRect.bottom > 0)
