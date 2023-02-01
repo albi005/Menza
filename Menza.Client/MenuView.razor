@@ -52,11 +52,18 @@
                     </div>
                     @if (Menu.Rating.HasValue)
                     {
+                        float x = Menu.Rating.Value;
                         <div style="opacity: .5; font-variation-settings: 'FILL' 1; color: darkgoldenrod; user-select: none">
-                            @for (int i = 0; i < Menu.Rating; i++)
+                            @for (; x > .75; x--)
                             {
-                                <span class="material-symbols-rounded" style="align-self: center">
+                                <span class="material-symbols-rounded">
                                     star
+                                </span>
+                            }
+                            @if (x > .25)
+                            {
+                                <span class="material-symbols-rounded">
+                                    star_half
                                 </span>
                             }
                         </div>

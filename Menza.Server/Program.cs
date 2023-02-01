@@ -1,5 +1,6 @@
 using Menza.Server;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ app.MapGet("/all", async (AuthService auth, MenuRepository menuRepository) =>
     if (email == null) return await menuRepository.GetAll();
     return await menuRepository.GetAll(email);
 });
-app.MapPost("/votes", async (AuthService auth, Db db, Menza.Shared.Vote vote) =>
+app.MapPost("/votes", async (AuthService auth, Db db, Menza.Shared.Vote vote, IMemoryCache cache) =>
 {
     string? email = await auth.Authenticate();
     if (email == null) return Results.Unauthorized();
@@ -41,6 +42,8 @@ app.MapPost("/votes", async (AuthService auth, Db db, Menza.Shared.Vote vote) =>
     else
         db.Votes.Add(new(vote.Date, email, vote.Rating));
     await db.SaveChangesAsync();
+    
+    cache.Remove(nameof(MenuRepository.GetAll));
     
     return Results.Ok();
 });

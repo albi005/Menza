@@ -20,7 +20,9 @@ public class AuthService
             CustomPayload payload = await JsonWebSignature.VerifySignedTokenAsync<CustomPayload>(
                 idToken,
                 new() { ExpiryClockTolerance = TimeSpan.FromDays(100) });
-            return payload.Email;
+            return !payload.Email.EndsWith("eotvos-tata.org")
+                ? null
+                : payload.Email;
         }
         catch (InvalidJwtException)
         {

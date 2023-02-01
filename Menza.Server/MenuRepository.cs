@@ -56,19 +56,7 @@ public class MenuRepository
 
         _cache.Remove(nameof(GetNext));
         _cache.Remove(nameof(GetAll));
-        _cache.Remove($"{nameof(GetMonth)}({year}, {month:00})");
     }
-
-    public async Task<List<Menu>> GetMonth(int year, int month) =>
-        (await _cache.GetOrCreateAsync($"{nameof(GetMonth)}({year}, {month:00})", async _ =>
-        {
-            DateOnly firstDayOfMonth = new(year, month, 1);
-            DateOnly lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
-            return await _db.Menus
-                .Where(m => m.Date >= firstDayOfMonth && m.Date <= lastDayOfMonth)
-                .OrderBy(m => m.Date)
-                .ToListAsync();
-        }))!;
 
     public async Task<List<MenuAndVotes>> GetAll() =>
         (await _cache.GetOrCreateAsync(nameof(GetAll), async _ =>
