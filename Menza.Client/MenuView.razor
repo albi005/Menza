@@ -52,7 +52,7 @@
                     </div>
                     @if (Menu.Rating.HasValue)
                     {
-                        float x = Menu.Rating.Value;
+                        double x = Menu.Rating.Value;
                         <div style="opacity: .5; font-variation-settings: 'FILL' 1; color: darkgoldenrod; user-select: none">
                             @for (; x > .75; x--)
                             {
@@ -147,12 +147,7 @@
             Rendered?.Invoke(_elementReference);
     }
 
-    private void Vote(int rating)
-    {
-        Menu.MyVote = rating;
-        OnVote(new(Menu.Date, rating));
-        StateHasChanged();
-    }
+    private void Vote(byte rating) => OnVote(new(Menu.Date, rating));
 
     private string? GetIsActive(int rating)
     {

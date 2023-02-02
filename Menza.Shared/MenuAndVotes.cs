@@ -1,8 +1,5 @@
 ﻿namespace Menza.Shared;
 
-public record MenuAndVotes(DateOnly Date, string Menu, float? Rating, float? MyVote, int VoteCount)
-{
-    public float? MyVote { get; set; } = MyVote;
-}
+public record MenuAndVotes(DateOnly Date, string Menu, double? Rating, byte? MyVote, int VoteCount);
 
-public record Vote(DateOnly Date, float Rating);
+public record Vote(DateOnly Date, byte Rating);

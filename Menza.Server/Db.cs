@@ -21,8 +21,8 @@ public record Menu(DateOnly Date, string Value)
 }
 
 [PrimaryKey(nameof(Date), nameof(Email))]
-public record Vote(DateOnly Date, string Email, float Value)
+public record Vote(DateOnly Date, string Email, byte Value)
 {
-    public float Value { get; set; } = Value;
+    public byte Value { get; set; } = Value;
     [ForeignKey(nameof(Date))] public Menu Menu { get; set; } = null!;
 }
