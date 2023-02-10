@@ -1,0 +1,18 @@
+﻿<div style="position: fixed; top: 0; right: 64px">
+    <div style="position: relative">
+        <svg viewBox="0 0 20 20" height="64" width="64" style="
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .3));
+            position: absolute">
+            <path d="M 20 0 V 20 L 7 20 L 0 13 L 0 0 Z" fill="beige"/>
+        </svg>
+        <div style="position: absolute; display: flex; justify-content: center; align-items: center; height: 64px; width: 64px"
+             @onclick="@Clicked">
+          <span class="material-symbols-rounded" style="font-variation-settings: 'opsz' 40; font-size: 40px">help</span>  
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback Clicked { get; set; }
+}

@@ -1,0 +1,30 @@
+﻿@if (IsVisible)
+{
+    <div class="scrim" @onclick="@Close" style="animation: fade-in .25s"></div>
+    
+    <div style="position: fixed;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                pointer-events: none;
+                animation: fade-in .25s, translate-in .25s">
+        <div style="pointer-events: auto">
+            @ChildContent
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public EventCallback Close { get; set; }
+
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

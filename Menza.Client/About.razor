@@ -1,0 +1,50 @@
+﻿<AboutButton Clicked="@(() => { _isVisible = true; StateHasChanged(); })"/>
+
+<Popup IsVisible="@_isVisible" Close="@(() => { _isVisible = false; StateHasChanged(); })">
+    <div style="margin: 16px">
+        <div class="surface" style="max-width: 400px">
+            <img src="qr-code.svg" height="128" width="128" style="float: right" alt="menza.alb1.hu">
+            <h1 style="display: inline">Menza</h1>.alb1.hu
+            <p>
+                Hogyan érhetem el gyorsabban ezt az oldalt?
+            </p>
+            <p>
+                <b>Chrome</b>: <br>
+                <span class="material-symbols-rounded inline">
+                    more_vert
+                </span>
+                majd
+                <span class="material-symbols-rounded inline">
+                    add_to_home_screen
+                </span> Kezdőképernyőre
+            </p>
+            <p>
+                <b>Safari (iOS)</b>: <br>
+                <span class="material-symbols-rounded inline">
+                    ios_share
+                </span>
+                majd
+                <span class="material-symbols-rounded inline">
+                    add_box
+                </span>Főképernyőhöz adás
+            </p>
+            <p>
+                <b>Samsung Internet</b>: <br>
+                <span class="material-symbols-rounded inline">
+                    menu
+                </span>
+                majd
+                <span class="material-symbols-rounded inline">
+                    add
+                </span>Oldal hozzáadása
+                majd Kezdőképernyő
+            </p>
+            <p>Készítette: Albi, 12.d</p>
+            <p>Forráskód: <a href="https://github.com/albi005/Menza">github.com/albi005/Menza</a></p>
+        </div>
+    </div>
+</Popup>
+
+@code {
+    private bool _isVisible;
+}

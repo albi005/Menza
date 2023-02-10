@@ -27,10 +27,13 @@
     }
 </div>
 
-@if (_isSigningIn && AuthService.IdToken == null)
-{
-    <SignInPopup Close="@(() => { _isSigningIn = false; StateHasChanged(); })"/>
-}
+<Popup
+    Close="@(() => { _isSigningIn = false; StateHasChanged(); })"
+    IsVisible="@(_isSigningIn && AuthService.IdToken == null)">
+    <SignInMenu />
+</Popup>
+
+<About />
 
 @code {
     private ElementReference _list;
