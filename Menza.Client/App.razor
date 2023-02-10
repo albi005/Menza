@@ -79,15 +79,15 @@
     }
 
     [JSInvokable]
-    public void Update(Data data)
+    public void OnScrolled(ScrollData scrollData)
     {
-        _selectedIndex = data.SelectedIndex;
-        _labelHeights = data.LabelHeights;
-        _contentHeights = data.ContentHeights;
-        _visibleIndexes = data.VisibleIndexes;
+        _selectedIndex = scrollData.SelectedIndex;
+        _labelHeights = scrollData.LabelHeights;
+        _contentHeights = scrollData.ContentHeights;
+        _visibleIndexes = scrollData.VisibleIndexes;
         StateHasChanged();
     }
 
-    public record struct Data(int SelectedIndex, int[] VisibleIndexes, double[] LabelHeights, double[] ContentHeights);
+    public record struct ScrollData(int SelectedIndex, int[] VisibleIndexes, double[] LabelHeights, double[] ContentHeights);
 
 }

@@ -35,10 +35,7 @@ app.MapPost("/votes", async (AuthService auth, Db db, Menza.Shared.Vote vote, IM
 
     Vote? existingVote = await db.Votes.FindAsync(vote.Date, email);
     if (existingVote != null)
-    {
         existingVote.Value = vote.Rating;
-        db.Votes.Update(existingVote);
-    }
     else
         db.Votes.Add(new(vote.Date, email, vote.Rating));
     await db.SaveChangesAsync();

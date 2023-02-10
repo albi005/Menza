@@ -35,7 +35,9 @@
     </div>
 </div>
 
-<div id="app"></div>
+<div id="app">
+    <div style="height: 4px; background: linear-gradient(69deg, rgba(14,0,255,1) 0%, rgba(255,0,0,1) 100%); width: var(--blazor-load-percentage); position: fixed; top: 0"></div>
+</div>
 
 <script async>
     function handleCredentialResponse(response) {
@@ -106,7 +108,7 @@
                     visibleIndexes.push(i);
             }
 
-            dotNetObject.invokeMethodAsync('Update', {
+            dotNetObject.invokeMethodAsync('OnScrolled', {
                 selectedIndex: closestIndex,
                 visibleIndexes,
                 labelHeights,
