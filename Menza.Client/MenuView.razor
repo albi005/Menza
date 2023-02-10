@@ -53,7 +53,7 @@
                     @if (Menu.Rating.HasValue)
                     {
                         double x = Menu.Rating.Value;
-                        <div style="opacity: .5; font-variation-settings: 'FILL' 1; color: darkgoldenrod; user-select: none">
+                        <div style="opacity: .5; font-variation-settings: 'FILL' 1; color: darkgoldenrod">
                             @for (; x > .75; x--)
                             {
                                 <span class="material-symbols-rounded">
@@ -81,7 +81,7 @@
                             @:Szerinted milyen lesz?
                         }
                     </div>
-                    <div style="height: 24px; user-select: none">
+                    <div style="height: 24px">
                         <button class="rating-button @(GetIsActive(1))" @onclick="@(() => Vote(1))">
                             <i class="material-symbols-rounded">sentiment_very_dissatisfied</i>
                         </button>
