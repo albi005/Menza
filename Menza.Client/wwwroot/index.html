@@ -81,8 +81,13 @@
             shape: 'circle'
         });
     }
+    
+    function scrollToNextMenu() {
+        window.nextMenu.scrollIntoView({behavior: "smooth", block: "center"});
+    }
 
     async function takeOver(nextMenu) {
+        window.nextMenu = nextMenu;
         
         const menus = document.getElementById('list').children;
         

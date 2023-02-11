@@ -1,0 +1,11 @@
+﻿@inject IJSRuntime Js
+
+<button class="fab fade-in" @onclick="OnClick">
+    <span class="material-symbols-rounded">
+        today
+    </span>
+</button>
+
+@code {
+    private void OnClick() => _ = Js.InvokeVoidAsync("scrollToNextMenu");
+}
