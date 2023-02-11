@@ -8,21 +8,14 @@
 <div style="height: 100%; padding: 50vh 0" @ref="_list" id="list">
     @if (_all != null)
     {
-        @for (int i = 0; i < _all.Count; i++)
+        @foreach (MenuAndVotes menu in _all)
         {
-            MenuAndVotes menu = _all[i];
-            bool selected = i == _selectedIndex;
             bool isNext = menu.Date == NextMenuService.NextMenu.Date;
-            bool isVisible = _visibleIndexes.Contains(i);
             <MenuView
                 Menu="@menu"
-                Rendered="@(isNext ? elementReference => _next = elementReference : null)"
+                Rendered="@(isNext ? OnNextMenuRendered : null)"
                 IsNext="@isNext"
-                Selected="@selected"
-                LabelHeight="@(_labelHeights?[i])"
-                ContentHeight="@(_contentHeights?[i])"
-                IsVisible="@isVisible"
-                OnVote="OnVote"/>
+                OnVote="@OnVote"/>
         }
     }
 </div>
@@ -37,29 +30,13 @@
 
 @code {
     private ElementReference _list;
-    private ElementReference _next;
-    private bool _isSecondRender = true;
-    private DotNetObjectReference<App>? _dotNetObjectReference;
-    private double[]? _labelHeights;
-    private double[]? _contentHeights;
-    private int _selectedIndex;
-    private int[] _visibleIndexes = Array.Empty<int>();
     private bool _isSigningIn;
 
     private List<MenuAndVotes>? _all;
 
     protected override void OnInitialized()
     {
-        _dotNetObjectReference = DotNetObjectReference.Create(this);
         AuthService.TokenChanged += () => InvokeAsync(StateHasChanged);
-    }
-
-    protected override async void OnAfterRender(bool firstRender)
-    {
-        if (firstRender || !_isSecondRender || _all == null) return;
-        _isSecondRender = false;
-        await JsRuntime.InvokeVoidAsync("subscribe", _dotNetObjectReference);
-        await JsRuntime.InvokeVoidAsync("takeOver", _next);
     }
 
     protected override async Task OnInitializedAsync()
@@ -81,16 +58,8 @@
         await JsRuntime.InvokeVoidAsync("window.onscroll", null);
     }
 
-    [JSInvokable]
-    public void OnScrolled(ScrollData scrollData)
+    private void OnNextMenuRendered(ElementReference elementReference)
     {
-        _selectedIndex = scrollData.SelectedIndex;
-        _labelHeights = scrollData.LabelHeights;
-        _contentHeights = scrollData.ContentHeights;
-        _visibleIndexes = scrollData.VisibleIndexes;
-        StateHasChanged();
+        _ = JsRuntime.InvokeVoidAsync("takeOver", elementReference);
     }
-
-    public record struct ScrollData(int SelectedIndex, int[] VisibleIndexes, double[] LabelHeights, double[] ContentHeights);
-
 }
