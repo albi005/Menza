@@ -21,9 +21,12 @@ builder.Services.AddHttpContextAccessor();
 
 WebApplication app = builder.Build();
 
+string serviceAccount = app.Configuration["Firebase:ServiceAccount"] ?? throw new("Firebase:ServiceAccount is not set");
 FirebaseApp.Create(new AppOptions
 {
-    Credential = GoogleCredential.FromJson(app.Configuration["Firebase:ServiceAccount"]),
+    Credential = serviceAccount.StartsWith('{')
+        ? GoogleCredential.FromJson(serviceAccount)
+        : GoogleCredential.FromFile(serviceAccount),
 });
 
 AsyncServiceScope scope = app.Services.CreateAsyncScope();
