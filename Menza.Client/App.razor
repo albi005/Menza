@@ -26,7 +26,7 @@
 
 <Popup
     Close="@(() => { _isSigningIn = false; StateHasChanged(); })"
-    IsVisible="@(_isSigningIn && AuthService.IdToken == null)">
+    IsVisible="@(_isSigningIn && AuthService.AccessToken == null)">
     <SignInMenu />
 </Popup>
 
@@ -49,7 +49,7 @@
 
     public async void OnVote(Vote vote)
     {
-        if (AuthService.IdToken == null)
+        if (AuthService.AccessToken == null)
         {
             _isSigningIn = true;
             StateHasChanged();
@@ -64,5 +64,6 @@
     private void OnNextMenuRendered(ElementReference elementReference)
     {
         _ = JsRuntime.InvokeVoidAsync("takeOver", elementReference);
+        Console.WriteLine("Next menu rendered");
     }
 }

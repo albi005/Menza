@@ -47,10 +47,16 @@
     Valami nem jó.
 </div>
 
-<script async>
-    function handleCredentialResponse(response) {
-        DotNet.invokeMethod('Menza.Client', 'HandleCredential', response.credential);
-    }
+<script src="_framework/blazor.webassembly.js"></script>
+<script async type="module">
+    import { signOut, signIn, onAccessTokenChanged } from "./auth.js";
+    
+    window.signOut = signOut;
+    window.signIn = signIn;
+    
+    onAccessTokenChanged(accessToken => {
+        DotNet.invokeMethod('Menza.Client', 'HandleCredential', accessToken);
+    });
 
     async function loadNextMenu() {
         let response = await fetch('https://localhost:7181/next');
@@ -67,26 +73,11 @@
 
     loadNextMenu();
 
-    window.onload = function () {
-        google.accounts.id.initialize({
-            client_id: '103920663096-kfjri04pm1lqeq523bdfskk7rd8d8mhv.apps.googleusercontent.com',
-            callback: handleCredentialResponse
-        });
-    };
-
-    function renderGoogleButton() {
-        const parent = document.getElementById('google-signin-button');
-        google.accounts.id.renderButton(parent, {
-            theme: 'outline',
-            shape: 'circle'
-        });
-    }
-    
     function scrollToNextMenu() {
         window.nextMenu.scrollIntoView({behavior: "smooth", block: "center"});
     }
 
-    async function takeOver(nextMenu) {
+    window.takeOver = async function(nextMenu) {
         window.nextMenu = nextMenu;
         
         const menus = document.getElementById('list').children;
@@ -115,8 +106,6 @@
         document.getElementById('tempNextMenu').remove();
     }
 </script>
-<script src="_framework/blazor.webassembly.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 
 </html>

@@ -1,13 +1,14 @@
 ﻿@inject IJSRuntime JsRuntime
 
-<div style="display: flex; height: 40px">
-    <div id="google-signin-button"></div>
+<div style="display: flex; justify-content: end">
+    <div class="sign-in-button" @onclick="@OnClick">
+        Bejelentkezés
+    </div>
 </div>
 
 @code {
-    protected override async void OnAfterRender(bool firstRender)
+    private void OnClick()
     {
-        if (firstRender)
-            await JsRuntime.InvokeVoidAsync("renderGoogleButton");
+        _ = JsRuntime.InvokeVoidAsync("signIn");
     }
 }

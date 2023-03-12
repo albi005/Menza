@@ -37,8 +37,7 @@ public class UpdateController : ControllerBase
             string content = await httpResponseMessage.Content.ReadAsStringAsync();
 
             IEnumerable<KeyValuePair<string, JsonNode?>>? jsonDays =
-                JsonNode.Parse(content)?["result"]?["dailymenu"]?
-                    .AsObject();
+                JsonNode.Parse(content)?["result"]?["dailymenu"] as JsonObject;
 
             if (jsonDays?.Any() != true) continue;
 

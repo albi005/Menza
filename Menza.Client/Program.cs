@@ -16,7 +16,6 @@ builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new(builder.HostE
 
 var app = builder.Build();
 
-await app.Services.GetRequiredService<AuthService>().Initialize();
 await app.Services.GetRequiredService<NextMenuService>().LoadNextMenu();
 
 await app.RunAsync();

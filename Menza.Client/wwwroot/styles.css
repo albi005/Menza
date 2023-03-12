@@ -167,3 +167,20 @@ body {
     overflow: hidden;
     animation: animate-height .2s;
 }
+
+.sign-in-button {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+    border-radius: 80px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color .2s;
+}
+
+.sign-in-button:hover {
+    background-color: var(--color-primary-hover);
+}
+
+.sign-in-button:active {
+    background-color: var(--color-primary-hover);
+}

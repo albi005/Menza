@@ -15,10 +15,10 @@ public class VoteService
     
     public async Task Vote(Vote vote)
     {
-        if (_authService.IdToken == null)
+        if (_authService.AccessToken == null)
             throw new InvalidOperationException("Not logged in");
         HttpRequestMessage request = new(HttpMethod.Post, "https://localhost:7181/votes");
-        request.Headers.Authorization = new("Bearer",_authService.IdToken);
+        request.Headers.Authorization = new("Bearer",_authService.AccessToken);
         request.Content = JsonContent.Create(vote);
         await _httpClient.SendAsync(request);
     }

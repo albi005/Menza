@@ -13,8 +13,8 @@ public class MenuService
     public async Task<List<MenuAndVotes>> GetAll()
     {
         HttpRequestMessage request = new(HttpMethod.Get, "https://localhost:7181/all");
-        if (_auth.IdToken != null)
-            request.Headers.Authorization = new("Bearer", _auth.IdToken);
+        if (_auth.AccessToken != null)
+            request.Headers.Authorization = new("Bearer", _auth.AccessToken);
         HttpResponseMessage response = await _httpClient.SendAsync(request);
         return (await response.Content.ReadFromJsonAsync<List<MenuAndVotes>>())!;
     }
