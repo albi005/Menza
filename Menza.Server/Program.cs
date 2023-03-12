@@ -1,4 +1,6 @@
 using System.Globalization;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Menza.Server;
 using Menza.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,11 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpContextAccessor();
 
 WebApplication app = builder.Build();
+
+FirebaseApp.Create(new AppOptions
+{
+    Credential = GoogleCredential.FromJson(app.Configuration["Firebase:ServiceAccount"]),
+});
 
 AsyncServiceScope scope = app.Services.CreateAsyncScope();
 await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();

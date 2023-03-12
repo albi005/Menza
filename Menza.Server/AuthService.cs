@@ -1,4 +1,5 @@
-﻿using Google.Apis.Auth;
+﻿using System.Diagnostics;
+using FirebaseAdmin.Auth;
 
 namespace Menza.Server;
 
@@ -17,14 +18,12 @@ public class AuthService
 
         try
         {
-            CustomPayload payload = await JsonWebSignature.VerifySignedTokenAsync<CustomPayload>(
-                idToken,
-                new() { ExpiryClockTolerance = TimeSpan.FromDays(100) });
-            return !payload.Email.EndsWith("eotvos-tata.org")
-                ? null
-                : payload.Email;
+            FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
+            Debug.WriteLine(decodedToken.Uid);
+            string? email = decodedToken.Claims["email"]?.ToString();
+            return email?.EndsWith("@eotvos-tata.org") != true ? null : email;
         }
-        catch (InvalidJwtException)
+        catch (FirebaseAuthException)
         {
             return null;
         }

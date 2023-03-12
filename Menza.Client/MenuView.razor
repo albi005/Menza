@@ -55,26 +55,26 @@
                     }
                 </div>
                 <div style="height: 24px">
-                    <button class="rating-button @(GetIsActive(1))" @onclick="@(() => Vote(1))">
+                    <button class="rating-button @(GetIsActive(1))" @onclick="@(() => Rate(1))">
                         <i class="material-symbols-rounded">sentiment_very_dissatisfied</i>
                     </button>
-                    <button class="rating-button @(GetIsActive(2))" @onclick="@(() => Vote(2))">
+                    <button class="rating-button @(GetIsActive(2))" @onclick="@(() => Rate(2))">
                         <i class="material-symbols-rounded">sentiment_dissatisfied</i>
                     </button>
-                    <button class="rating-button @(GetIsActive(3))" @onclick="@(() => Vote(3))">
+                    <button class="rating-button @(GetIsActive(3))" @onclick="@(() => Rate(3))">
                         <i class="material-symbols-rounded">sentiment_neutral</i>
                     </button>
-                    <button class="rating-button @(GetIsActive(4))" @onclick="@(() => Vote(4))">
+                    <button class="rating-button @(GetIsActive(4))" @onclick="@(() => Rate(4))">
                         <i class="material-symbols-rounded">sentiment_satisfied</i>
                     </button>
-                    <button class="rating-button @(GetIsActive(5))" @onclick="@(() => Vote(5))">
+                    <button class="rating-button @(GetIsActive(5))" @onclick="@(() => Rate(5))">
                         <i class="material-symbols-rounded">sentiment_very_satisfied</i>
                     </button>
                 </div>
                 @if (Menu.Rating.HasValue)
                 {
                     <div style="margin-top: 16px">
-                        Átlag: @Menu.Rating.Value.ToString("0.0") (@Menu.VoteCount szavazat)
+                        Átlag: @Menu.Rating.Value.ToString("0.0") (@Menu.RatingCount szavazat)
                     </div>
                 }
             </div>
@@ -92,15 +92,37 @@
 
     [Parameter]
     [EditorRequired]
-    public Action<Rating> OnVote { get; set; } = null!;
+    public Action<Rating> SaveRating { get; set; } = null!;
 
-    private void Vote(byte rating) => OnVote(new(Menu.Date, rating));
+    private void Rate(byte rating)
+    {
+        if (!Menu.Rating.HasValue)
+        {
+            Menu.Rating = rating;
+            Menu.MyRating = rating;
+            Menu.RatingCount = 1;
+        }
+        else
+        {
+            double sum = Menu.Rating.Value * Menu.RatingCount;
+            if (Menu.MyRating.HasValue)
+            {
+                sum -= Menu.MyRating.Value;
+                Menu.RatingCount--;
+            }
+            sum += rating;
+            Menu.RatingCount++;
+            Menu.Rating = sum / Menu.RatingCount;
+            Menu.MyRating = rating;
+        }
+        StateHasChanged();
+        SaveRating(new(Menu.Date, rating));
+    }
 
     private string? GetIsActive(int rating)
     {
-        if (!Menu.MyVote.HasValue) return null;
-        bool isActive = Math.Abs(Menu.MyVote.Value - rating) < 0.5;
+        if (!Menu.MyRating.HasValue) return null;
+        bool isActive = Math.Abs(Menu.MyRating.Value - rating) < 0.5;
         return isActive ? "active" : null;
     }
-
 }
