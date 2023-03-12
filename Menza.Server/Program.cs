@@ -1,14 +1,19 @@
+using System.Globalization;
 using Menza.Server;
+using Menza.Shared;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+
+CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("hu");
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 builder.Services.AddDbContext<Db>(o => o.UseSqlite("Data Source=db.sqlite"));
 builder.Services.AddMemoryCache();
-builder.Services.AddScoped<MenuRepository>();
+builder.Services.AddScoped<Repository>();
+builder.Services.AddScoped<IRepository>(sp => sp.GetRequiredService<Repository>());
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpContextAccessor();
 
@@ -18,32 +23,15 @@ AsyncServiceScope scope = app.Services.CreateAsyncScope();
 await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
 await scope.DisposeAsync();
 
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
 app.UseRouting();
 app.UseCors();
-app.MapGet("/", () => "Hello World!");
-app.MapGet("/next", async (MenuRepository menuRepository) => await menuRepository.GetNext());
-app.MapGet("/all", async (AuthService auth, MenuRepository menuRepository) =>
-{
-    string? email = await auth.Authenticate();
-    if (email == null) return await menuRepository.GetAll();
-    return await menuRepository.GetAll(email);
-});
-app.MapPost("/votes", async (AuthService auth, Db db, Menza.Shared.Vote vote, IMemoryCache cache) =>
-{
-    string? email = await auth.Authenticate();
-    if (email == null) return Results.Unauthorized();
-
-    Vote? existingVote = await db.Votes.FindAsync(vote.Date, email);
-    if (existingVote != null)
-        existingVote.Value = vote.Rating;
-    else
-        db.Votes.Add(new(vote.Date, email, vote.Rating));
-    await db.SaveChangesAsync();
-    
-    cache.Remove(nameof(MenuRepository.GetAll));
-    
-    return Results.Ok();
-});
+app.MapGet("/next", async (Repository repository) => await repository.GetNext());
+app.MapGet("/all", async (Repository repository) => await repository.GetAll());
+app.MapPost("/votes", async (Rating rating, Repository repository) => await repository.Rate(rating));
+app.MapRazorPages();
 app.MapControllers();
 
 app.Run();

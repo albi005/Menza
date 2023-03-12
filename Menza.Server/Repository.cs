@@ -4,24 +4,33 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace Menza.Server;
 
-public class MenuRepository
+public class Repository : IRepository
 {
     private readonly IMemoryCache _cache;
     private readonly Db _db;
+    private readonly AuthService _auth;
 
-    public MenuRepository(IMemoryCache cache, Db db)
+    public Repository(IMemoryCache cache, Db db, AuthService auth)
     {
         _cache = cache;
         _db = db;
+        _auth = auth;
     }
 
-    public async Task<Menu?> GetNext() =>
+    public async Task<MenuAndRating?> GetNext() =>
         await _cache.GetOrCreateAsync(nameof(GetNext), async cacheEntry =>
         {
             DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-            Menu? menu = await _db.Menus
+            MenuAndRating? menu = await _db.Menus
+                .Where(m => m.Date >= today)
                 .OrderBy(m => m.Date)
-                .FirstOrDefaultAsync(m => m.Date >= today);
+                .Select(m => new MenuAndRating(
+                    m.Date,
+                    m.Value,
+                    m.Votes != null ? m.Votes.Average(v => v.Value) : null,
+                    null,
+                    m.Votes != null ? m.Votes.Count : 0))
+                .FirstOrDefaultAsync();
             if (menu != null)
                 cacheEntry.SetAbsoluteExpiration(menu.Date.ToDateTime(default).AddDays(1));
             return menu;
@@ -58,28 +67,47 @@ public class MenuRepository
         _cache.Remove(nameof(GetAll));
     }
 
-    public async Task<List<MenuAndVotes>> GetAll() =>
-        (await _cache.GetOrCreateAsync(nameof(GetAll), async _ =>
-        {
-            return await _db.Menus
-                .OrderBy(m => m.Date)
-                .Select(m => new MenuAndVotes(
-                    m.Date,
-                    m.Value,
-                    m.Votes != null ? m.Votes.Average(v => v.Value) : null,
-                    null,
-                    m.Votes!.Count))
-                .ToListAsync();
-        }))!;
-    
-    public async Task<List<MenuAndVotes>> GetAll(string email) =>
-        await _db.Menus
+    public async Task<List<MenuAndRating>> GetAll()
+    {
+        string? email = await _auth.Authenticate();
+        if (email == null)
+            return (await _cache.GetOrCreateAsync(nameof(GetAll), async _ =>
+            {
+                return await _db.Menus
+                    .OrderBy(m => m.Date)
+                    .Select(m => new MenuAndRating(
+                        m.Date,
+                        m.Value,
+                        m.Votes != null ? m.Votes.Average(v => v.Value) : null,
+                        null,
+                        m.Votes!.Count))
+                    .ToListAsync();
+            }))!;
+        
+        return await _db.Menus
             .OrderBy(m => m.Date)
-            .Select(m => new MenuAndVotes(
+            .Select(m => new MenuAndRating(
                 m.Date,
                 m.Value,
                 m.Votes != null ? m.Votes.Average(v => v.Value) : null,
                 m.Votes!.Any(v => v.Email == email) ? m.Votes!.First(v => v.Email == email).Value : null,
                 m.Votes!.Count))
             .ToListAsync();
+    }
+
+    public async Task Rate(Rating rating)
+    {
+        string? email = await _auth.Authenticate();
+        if (email == null) return;
+
+        Vote? existingVote = await _db.Votes.FindAsync(rating.Date, email);
+        if (existingVote != null)
+            existingVote.Value = rating.Value;
+        else
+            _db.Votes.Add(new(rating.Date, email, rating.Value));
+        await _db.SaveChangesAsync();
+
+        _cache.Remove(nameof(GetAll));
+        _cache.Remove(nameof(GetNext));
+    }
 }

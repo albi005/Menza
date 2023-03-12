@@ -7,11 +7,11 @@ namespace Menza.Server;
 [Route("/update")]
 public class UpdateController : ControllerBase
 {
-    private readonly MenuRepository _menuRepository;
+    private readonly Repository _repository;
 
-    public UpdateController(MenuRepository menuRepository)
+    public UpdateController(Repository repository)
     {
-        _menuRepository = menuRepository;
+        _repository = repository;
     }
 
     [HttpGet]
@@ -44,7 +44,7 @@ public class UpdateController : ControllerBase
             Dictionary<int, string?> days = jsonDays
                 .ToDictionary(x => int.Parse(x.Key), x => x.Value!["19"]?.GetValue<string>());
 
-            await _menuRepository.UpdateMonth(date.Year, date.Month, days);
+            await _repository.UpdateMonth(date.Year, date.Month, days);
         }
     }
 }

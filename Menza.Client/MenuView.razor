@@ -1,8 +1,8 @@
 ﻿@using System.Globalization
 @using Menza.Shared
 
-<div style="padding: 16px" class="@(IsNext ? "" : "closed")">
-    <div @ref="_elementReference" class="surface">
+<div style="padding: 16px" class="@(IsNext ? "" : "closed")" id="@(IsNext ? "next" : null)">
+    <div class="surface">
         <div class="date-and-menu">
             @if (IsNext)
             {
@@ -83,29 +83,16 @@
 </div>
 
 @code {
-    private ElementReference _elementReference;
-    private bool _firstRender = true;
-
-    [Parameter]
-    public Action<ElementReference>? Rendered { get; set; }
-
     [Parameter]
     public bool IsNext { get; set; }
 
     [Parameter]
     [EditorRequired]
-    public MenuAndVotes Menu { get; set; } = null!;
+    public MenuAndRating Menu { get; set; } = null!;
 
     [Parameter]
     [EditorRequired]
-    public Action<Vote> OnVote { get; set; } = null!;
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        _firstRender = firstRender;
-        if (firstRender)
-            Rendered?.Invoke(_elementReference);
-    }
+    public Action<Rating> OnVote { get; set; } = null!;
 
     private void Vote(byte rating) => OnVote(new(Menu.Date, rating));
 
@@ -115,4 +102,5 @@
         bool isActive = Math.Abs(Menu.MyVote.Value - rating) < 0.5;
         return isActive ? "active" : null;
     }
+
 }

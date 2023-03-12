@@ -7,13 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Google.Apis.Auth" Version="1.59.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2" PrivateAssets="all" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Menza.Shared\Menza.Shared.csproj" />
+        <ProjectReference Include="..\Menza.Shared\Menza.Shared.csproj" />
+        <ProjectReference Include="..\Menza.Client\Menza.Client.csproj" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.59.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.2" />
     </ItemGroup>
 
 </Project>

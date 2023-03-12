@@ -1,69 +1,93 @@
 ﻿@using Menza.Shared
-@inject AuthService AuthService;
 @inject IJSRuntime JsRuntime;
-@inject NextMenuService NextMenuService;
-@inject VoteService VoteService;
-@inject MenuService MenuService;
+@inject IRepository Repository;
+@inject PersistentComponentState ApplicationState;
+@inject IServiceProvider ServiceProvider;
+@implements IDisposable
 
 <div style="height: 100%; padding: 50vh 0" @ref="_list" id="list">
     @if (_all != null)
     {
-        @foreach (MenuAndVotes menu in _all)
+        @foreach (MenuAndRating menu in _all)
         {
-            bool isNext = menu.Date == NextMenuService.NextMenu.Date;
+            bool isNext = menu == _nextMenu;
             <MenuView
                 Menu="@menu"
-                Rendered="@(isNext ? OnNextMenuRendered : null)"
                 IsNext="@isNext"
-                OnVote="@OnVote"/>
+                OnVote="@Rate"/>
         }
     }
 </div>
 
-<ScrollToNextMenuButton />
+@if (!_isPrerendering)
+{
+    <ScrollToNextMenuButton />
 
-<About />
+    <About />
 
-<Popup
-    Close="@(() => { _isSigningIn = false; StateHasChanged(); })"
-    IsVisible="@(_isSigningIn && AuthService.AccessToken == null)">
-    <SignInMenu />
-</Popup>
-
+    <Popup
+        Close="@(() => { _isSigningIn = false; StateHasChanged(); })"
+        IsVisible="@(_isSigningIn && !_authService.IsAuthenticated)">
+        <SignInMenu />
+    </Popup>
+}
 
 @code {
     private ElementReference _list;
+    private MenuAndRating? _nextMenu;
     private bool _isSigningIn;
+    private bool _isPrerendering = true;
+    private PersistingComponentStateSubscription _subscription;
+    private AuthService _authService = null!;
 
-    private List<MenuAndVotes>? _all;
+    private List<MenuAndRating>? _all;
 
     protected override void OnInitialized()
     {
-        AuthService.TokenChanged += () => InvokeAsync(StateHasChanged);
+        _subscription = ApplicationState.RegisterOnPersisting(Persist);
+
+        if (!ApplicationState.TryTakeFromJson<List<MenuAndRating>?>(nameof(IRepository.GetAll), out var stored))
+            return;
+        
+        _isPrerendering = false;
+        _authService = ServiceProvider.GetRequiredService<AuthService>();
+        _authService.Changed += () => InvokeAsync(StateHasChanged);
+        _all = stored;
+        _nextMenu = _all?.FirstOrDefault(m => m.Date >= DateOnly.FromDateTime(DateTime.Now));
     }
 
     protected override async Task OnInitializedAsync()
     {
-        _all = await MenuService.GetAll();
+        if (_isPrerendering || _authService.IsAuthenticated)
+            _all = await Repository.GetAll();
+        
+        _nextMenu = _all?.FirstOrDefault(m => m.Date >= DateOnly.FromDateTime(DateTime.Now));
     }
 
-    public async void OnVote(Vote vote)
+    private Task Persist()
     {
-        if (AuthService.AccessToken == null)
+        ApplicationState.PersistAsJson(nameof(IRepository.GetAll), _all);
+        return Task.CompletedTask;
+    }
+
+    private async void Rate(Rating rating)
+    {
+        if (!_authService.IsAuthenticated)
         {
             _isSigningIn = true;
             StateHasChanged();
             return;
         }
-        await VoteService.Vote(vote);
-        _all = await MenuService.GetAll();
+        await Repository.Rate(rating);
         StateHasChanged();
         await JsRuntime.InvokeVoidAsync("window.onscroll", null);
     }
 
-    private void OnNextMenuRendered(ElementReference elementReference)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        _ = JsRuntime.InvokeVoidAsync("takeOver", elementReference);
-        Console.WriteLine("Next menu rendered");
+        _ = JsRuntime.InvokeVoidAsync("takeOver");
+        return base.OnAfterRenderAsync(firstRender);
     }
+
+    public void Dispose() => _subscription.Dispose();
 }
