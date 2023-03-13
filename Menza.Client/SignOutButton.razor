@@ -1,14 +1,16 @@
 ﻿@inject IJSRuntime JsRuntime
+@inject AuthService AuthService
 
 <div style="display: flex; justify-content: end">
     <div class="sign-in-button" @onclick="@OnClick">
-        Bejelentkezés
+        Kijelentkezés
     </div>
 </div>
 
 @code {
     private void OnClick()
     {
-        _ = JsRuntime.InvokeVoidAsync("auth.signIn");
+        AuthService.HandleCredential(null);
+        _ = JsRuntime.InvokeVoidAsync("auth.signOut");
     }
 }

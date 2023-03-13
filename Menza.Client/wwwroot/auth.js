@@ -1,5 +1,5 @@
 ﻿import {initializeApp} from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
-import {getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged}
+import {getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut as signOutInternal}
     from "https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js";
 
 const firebaseConfig = {
@@ -14,9 +14,18 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 const auth = getAuth();
 
-export const signOut = auth.signOut;
+export async function signOut() {
+    await signOutInternal(auth);
+}
+
+let initializePromiseResolve;
+let initializePromise = new Promise((resolve) => {
+    initializePromiseResolve = resolve;
+});
 
 onAuthStateChanged(auth, async (user) => {
+    initializePromiseResolve();
+    console.log("Auth state changed: " + user?.email);
     if (user) {
         if (!user.email.endsWith("@eotvos-tata.org")) {
             await signOut();
@@ -34,8 +43,13 @@ export async function signIn() {
     await signInWithPopup(auth, provider)
 }
 
-export function onAccessTokenChanged(callback) {
+export function registerOnAccessTokenChanged(callback) {
     onAuthStateChanged(auth, async (user) => {
         callback(await user?.getIdToken(true));
     });
+}
+
+export async function getAccessToken() {
+    await initializePromise;
+    return await auth.currentUser?.getIdToken(true);
 }

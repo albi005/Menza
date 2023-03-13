@@ -92,10 +92,13 @@
 
     [Parameter]
     [EditorRequired]
-    public Action<Rating> SaveRating { get; set; } = null!;
+    public Func<Rating, bool> SaveRating { get; set; } = null!;
 
     private void Rate(byte rating)
     {
+        bool saved = SaveRating(new(Menu.Date, rating));
+        if (!saved) return;
+        
         if (!Menu.Rating.HasValue)
         {
             Menu.Rating = rating;
@@ -115,8 +118,8 @@
             Menu.Rating = sum / Menu.RatingCount;
             Menu.MyRating = rating;
         }
-        StateHasChanged();
         SaveRating(new(Menu.Date, rating));
+        StateHasChanged();
     }
 
     private string? GetIsActive(int rating)

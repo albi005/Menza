@@ -24,6 +24,7 @@ public class Repository : IRepository
 
     private async Task<T> Get<T>(string path)
     {
+        Console.WriteLine($"Getting {path}");
         HttpRequestMessage request = new(HttpMethod.Get, "https://localhost:7181/" + path);
         if (_auth.AccessToken != null)
             request.Headers.Authorization = new("Bearer", _auth.AccessToken);

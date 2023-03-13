@@ -1,4 +1,6 @@
-﻿<AboutButton Clicked="@(() => { _isVisible = true; StateHasChanged(); })"/>
+﻿@inject AuthService AuthService
+
+<AboutButton Clicked="@(() => { _isVisible = true; StateHasChanged(); })"/>
 
 <Popup IsVisible="@_isVisible" Close="@(() => { _isVisible = false; StateHasChanged(); })">
     <div style="margin: 16px">
@@ -41,10 +43,21 @@
             </p>
             <p>Készítette: Albi, 12.d</p>
             <p>Forráskód: <a href="https://github.com/albi005/Menza">github.com/albi005/Menza</a></p>
+            
+            @if (AuthService.IsAuthenticated)
+            {
+                <SignOutButton />
+            }
         </div>
     </div>
 </Popup>
 
 @code {
     private bool _isVisible;
+    
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        AuthService.Changed += () => InvokeAsync(StateHasChanged);
+    }
 }
