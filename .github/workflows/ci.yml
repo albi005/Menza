@@ -10,7 +10,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+        
+      - run: find . -type f -exec sed -i 's/https:\/\/localhost:7181/https:\/\/menza.alb1.hu/g' {} +
+      
       - run: |
           export XDG_RUNTIME_DIR=/run/user/$(id -u)
           systemctl --user stop menza.service
