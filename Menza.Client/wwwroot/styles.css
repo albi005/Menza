@@ -153,21 +153,6 @@ body {
     fill: #cdceb6;
 }
 
-@keyframes animate-height {
-    from {
-        height: 0;
-    }
-
-    to {
-        height: 30px;
-    }
-}
-
-.animate-height {
-    overflow: hidden;
-    animation: animate-height .2s;
-}
-
 .sign-in-button {
     background-color: var(--color-primary);
     color: var(--color-on-primary);
@@ -199,7 +184,6 @@ body {
     transform: translate(-50%, -50%);
     width: calc(100% - 64px);
     background-color: beige;
-    transition: background-color 0.25s, box-shadow 0.25s;
     box-shadow: 0 0 0 rgba(0, 0, 0, .3);
     z-index: -1;
 }

@@ -56,6 +56,10 @@
             + `.block:nth-child(${i+1}) .card .collapse {height: ${collapseHeight}px;}`);
     };
     
+    let sheet2 = new CSSStyleSheet();
+    document.adoptedStyleSheets.push(sheet2);
+    sheet2.replaceSync(`transition: background-color 0.25s, box-shadow 0.25s;`);
+    
     window.skipToNextMenu();
     window.onscroll(null);
 </script>

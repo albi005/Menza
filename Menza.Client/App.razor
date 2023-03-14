@@ -13,6 +13,7 @@
         {
             bool isNext = menu == _nextMenu;
             <MenuView
+                IsPrerendering="@_isPrerendering"
                 Menu="@menu"
                 IsNext="@isNext"
                 SaveRating="@SaveRating"/>
