@@ -18,13 +18,13 @@ export async function signOut() {
     await signOutInternal(auth);
 }
 
-let initializePromiseResolve;
+let resolveInitializePromise;
 let initializePromise = new Promise((resolve) => {
-    initializePromiseResolve = resolve;
+    resolveInitializePromise = resolve;
 });
 
 onAuthStateChanged(auth, async (user) => {
-    initializePromiseResolve();
+    resolveInitializePromise();
     console.log("Auth state changed: " + user?.email);
     if (user) {
         if (!user.email.endsWith("@eotvos-tata.org")) {

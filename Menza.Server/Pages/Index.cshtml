@@ -34,17 +34,26 @@
 <script>
     window.skipToNextMenu = _ => document.getElementById('next').scrollIntoView({behavior: "auto", block: "center"});
     window.scrollToNextMenu = _ => document.getElementById('next').scrollIntoView({behavior: "smooth", block: "center"});
-    window.onscroll = _ => {
+    
+    let sheet = new CSSStyleSheet();
+    document.adoptedStyleSheets = [sheet];
+    window.onscroll = _ => {        
         const menus = document.getElementById('list').children;
         const center = window.innerHeight / 2;
+        let i = 0;
         for (const child of menus) {
             const rect = child.getBoundingClientRect();
             const isSelected = rect.top <= center && rect.bottom > center;
-            const hidden = child.getElementsByClassName('hidden')[0];
-            const content = hidden.children[0];
-            hidden.style.height = isSelected ? content.clientHeight + 'px' : '0';
-            child.classList.toggle('closed', !isSelected);
+            if (isSelected) break;
+            i++;
         }
+        if (i >= menus.length) i = menus.length - 1;
+        
+        let menu = menus[i];
+        let collapseHeight = menu.querySelector('.collapse').children[0].clientHeight;
+        sheet.replaceSync(
+            `.block:nth-child(${i+1}) .card {background-color: white;box-shadow: 0 6px 6px rgba(0, 0, 0, .3);z-index: 0}`
+            + `.block:nth-child(${i+1}) .card .collapse {height: ${collapseHeight}px;}`);
     };
     
     window.skipToNextMenu();
@@ -56,12 +65,12 @@
 </div>
 
 <script src="_framework/blazor.webassembly.js"></script>
-<script async type="module">
+<script type="module">
     import { getAccessToken, signOut, signIn, registerOnAccessTokenChanged } from "./auth.js";
     
-    async function registerCredentialHandler(something) {
+    async function registerCredentialHandler(authService) {
         registerOnAccessTokenChanged(async token => {
-            await something.invokeMethodAsync('HandleCredential', token);
+            await authService.invokeMethodAsync('HandleCredential', token);
         });
     }
     

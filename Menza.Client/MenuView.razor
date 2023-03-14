@@ -1,14 +1,22 @@
 ﻿@using System.Globalization
 @using Menza.Shared
 
-<div style="padding: 16px" class="@(IsNext ? "" : "closed")" id="@(IsNext ? "next" : null)">
-    <div class="surface">
-        <div class="date-and-menu">
+<div class="block" id="@(IsNext ? "next" : null)">
+    <div class="surface card">
+        <div>
             @if (IsNext)
             {
                 if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
                 {
-                    @:Mai ebéd
+                    <span style="
+                        background-color: var(--color-primary);
+                        color: white;
+                        border-radius: 14px;
+                        padding: 2px 8px;
+                        margin-bottom: 4px;
+                        display: inline-block">
+                        Mai ebéd
+                    </span>
                 }
                 else
                 {
@@ -26,7 +34,7 @@
         @if (Menu.Rating.HasValue)
         {
             double x = Menu.Rating.Value;
-            <div class="fade-in @(IsNext ? "animate-height" : null)" style="font-variation-settings: 'FILL' 1; color: var(--color-rating); height: 30px">
+            <div class="@(IsNext ? "animate-height" : null)" style="font-variation-settings: 'FILL' 1; color: var(--color-rating); height: 30px">
                 @for (; x > .75; x--)
                 {
                     <span class="material-symbols-rounded">
@@ -42,7 +50,7 @@
             </div>
         }
 
-        <div class="hidden">
+        <div class="collapse">
             <div>
                 <div style="padding-top: 24px">
                     @if (new DateTime(Menu.Date.Year, Menu.Date.Month, Menu.Date.Day, 11, 35, 0) < DateTime.Now)
