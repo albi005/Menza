@@ -35,30 +35,46 @@
     window.skipToNextMenu = _ => document.getElementById('next').scrollIntoView({behavior: "auto", block: "center"});
     window.scrollToNextMenu = _ => document.getElementById('next').scrollIntoView({behavior: "smooth", block: "center"});
     
-    let sheet = new CSSStyleSheet();
-    document.adoptedStyleSheets = [sheet];
+    let centerCardStyle = document.createElement('style');
+    document.head.appendChild(centerCardStyle);
+    
     window.onscroll = _ => {        
-        const menus = document.getElementById('list').children;
-        const center = window.innerHeight / 2;
-        let i = 0;
-        for (const child of menus) {
-            const rect = child.getBoundingClientRect();
-            const isSelected = rect.top <= center && rect.bottom > center;
-            if (isSelected) break;
-            i++;
+      const menus = document.getElementById('list').children;
+      const center = window.innerHeight / 2;
+      let i = 0;
+      for (const child of menus) {
+        const rect = child.getBoundingClientRect();
+        const isSelected = rect.top <= center && rect.bottom > center;
+        if (isSelected) break;
+        i++;
+      }
+      if (i >= menus.length) i = menus.length - 1;
+      
+      let menu = menus[i];
+      let collapseHeight = menu.querySelector('.collapse').children[0].clientHeight;
+      centerCardStyle.innerHTML = `
+        .block:nth-child(${i+1}) .card {
+          background-color: white;
+          box-shadow: 0 6px 6px rgba(0, 0, 0, .3);
+          z-index: 0;
         }
-        if (i >= menus.length) i = menus.length - 1;
-        
-        let menu = menus[i];
-        let collapseHeight = menu.querySelector('.collapse').children[0].clientHeight;
-        sheet.replaceSync(
-            `.block:nth-child(${i+1}) .card {background-color: white;box-shadow: 0 6px 6px rgba(0, 0, 0, .3);z-index: 0}`
-            + `.block:nth-child(${i+1}) .card .collapse {height: ${collapseHeight}px;}`);
+        .block:nth-child(${i+1}) .card .collapse {
+          height: ${collapseHeight}px;
+        }
+      `;
     };
     
-    let sheet2 = new CSSStyleSheet();
-    document.adoptedStyleSheets.push(sheet2);
-    sheet2.replaceSync(`transition: background-color 0.25s, box-shadow 0.25s;`);
+    document.addEventListener('DOMContentLoaded', _ => {
+      const style = document.createElement('style');
+      style.innerHTML = `
+        .card {
+          transition: background-color 0.25s, box-shadow 0.25s;
+        }
+      `;
+      document.head.appendChild(style);
+    });
+    
+    // document.addEventListener('DOMContentLoaded') = _ => console.log('loaded');
     
     window.skipToNextMenu();
     window.onscroll(null);
@@ -68,7 +84,6 @@
     Valami nem jó.
 </div>
 
-<script src="_framework/blazor.webassembly.js"></script>
 <script type="module">
     import { getAccessToken, signOut, signIn, registerOnAccessTokenChanged } from "./auth.js";
     
@@ -89,6 +104,7 @@
         window.onscroll(null);
     }
 </script>
+<script src="_framework/blazor.webassembly.js"></script>
 </body>
 
 </html>
