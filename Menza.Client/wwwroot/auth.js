@@ -18,34 +18,36 @@ export async function signOut() {
     await signOutInternal(auth);
 }
 
-let resolveInitializePromise;
-let initializePromise = new Promise((resolve) => {
-    resolveInitializePromise = resolve;
-});
-
-onAuthStateChanged(auth, async (user) => {
-    resolveInitializePromise();
-    console.log("Auth state changed: " + user?.email);
-    if (user) {
-        if (!user.email.endsWith("@eotvos-tata.org")) {
-            await signOut();
-            alert("Az eotvos-tata.org végű email címedet használd!");
-            return;
-        }
-        console.log(user.email);
-    } else {
-        console.log("Signed out");
-    }
-});
-
 export async function signIn() {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider)
 }
 
-export function registerOnAccessTokenChanged(callback) {
+let resolveInitializePromise;
+let initializePromise = new Promise((resolve) => {
+    resolveInitializePromise = resolve;
+});
+
+export function registerOnAccessTokenChanged(onAccessTokenChanged) {
+    console.log("Registering on access token changed");
+    
     onAuthStateChanged(auth, async (user) => {
-        callback(await user?.getIdToken(true));
+        console.log("Auth state changed: " + user?.email);
+        
+        resolveInitializePromise();
+        
+        if (user) {
+            if (!user.email.endsWith("@eotvos-tata.org")) {
+                await signOut();
+                alert("Az eotvos-tata.org végű email címedet használd!");
+                return;
+            }
+            console.log(user.email);
+        } else {
+            console.log("Signed out");
+        }
+        
+        onAccessTokenChanged(await user?.getIdToken(true));
     });
 }
 
