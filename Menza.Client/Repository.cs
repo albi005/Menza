@@ -5,10 +5,14 @@ namespace Menza.Client;
 
 public class Repository : IRepository
 {
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient;
     private readonly AuthService _auth;
 
-    public Repository(AuthService auth) => _auth = auth;
+    public Repository(HttpClient httpClient, AuthService auth)
+    {
+        _httpClient = httpClient;
+        _auth = auth;
+    }
 
     public async Task<MenuAndRating?> GetNext() => await Get<MenuAndRating?>("next");
     public async Task<List<MenuAndRating>> GetAll() => await Get<List<MenuAndRating>>("all");
@@ -16,7 +20,7 @@ public class Repository : IRepository
     public async Task Rate(Rating rating)
     {
         if (_auth.AccessToken == null) throw new("Not authenticated");
-        HttpRequestMessage request = new(HttpMethod.Post, "https://localhost:7181/votes");
+        HttpRequestMessage request = new(HttpMethod.Post, "votes");
         request.Content = JsonContent.Create(rating);
         request.Headers.Authorization = new("Bearer", _auth.AccessToken);
         await _httpClient.SendAsync(request);
@@ -25,7 +29,7 @@ public class Repository : IRepository
     private async Task<T> Get<T>(string path)
     {
         Console.WriteLine($"Getting {path}");
-        HttpRequestMessage request = new(HttpMethod.Get, "https://localhost:7181/" + path);
+        HttpRequestMessage request = new(HttpMethod.Get, path);
         if (_auth.AccessToken != null)
             request.Headers.Authorization = new("Bearer", _auth.AccessToken);
         

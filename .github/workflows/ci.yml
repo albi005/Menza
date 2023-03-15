@@ -13,12 +13,13 @@ jobs:
         
       - run: find . -type f -exec sed -i 's/https:\/\/localhost:7181/https:\/\/menza.alb1.hu/g' {} +
       
+      - run: dotnet publish Menza.Server/Menza.Server.csproj -c Release -o ./publish
+      
       - run: |
           export XDG_RUNTIME_DIR=/run/user/$(id -u)
           systemctl --user stop menza.service
 
-      - name: Publish
-        run: dotnet publish Menza.Server/Menza.Server.csproj -c Release -o /var/www/Menza
+      - run: mv publish/* /var/www/Menza/
 
       - run: |
           export XDG_RUNTIME_DIR=/run/user/$(id -u)
