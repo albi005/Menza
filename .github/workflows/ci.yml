@@ -19,7 +19,7 @@ jobs:
           export XDG_RUNTIME_DIR=/run/user/$(id -u)
           systemctl --user stop menza.service
 
-      - run: mv publish/* /var/www/Menza/
+      - run: cp -r publish/* /var/www/Menza/
 
       - run: |
           export XDG_RUNTIME_DIR=/run/user/$(id -u)
