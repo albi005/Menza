@@ -84,6 +84,7 @@
     Valami nem jó.
 </div>
 
+<script src="_framework/blazor.webassembly.js" autostart="false"></script>
 <script type="module">
     import { getAccessToken, signOut, signIn, registerOnAccessTokenChanged } from "./auth.js";
     
@@ -103,8 +104,9 @@
     window.takeOver = async function() {
         window.onscroll(null);
     }
+    
+    Blazor.start();
 </script>
-<script src="_framework/blazor.webassembly.js"></script>
 </body>
 
 </html>

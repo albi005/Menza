@@ -1,3 +1,4 @@
+using System.Globalization;
 using Blazored.LocalStorage;
 using Menza.Client;
 using Menza.Shared;
@@ -13,9 +14,13 @@ builder.Services.AddSingleton<IRepository, Repository>();
 builder.Services.AddSingleton<StartupService>();
 builder.Services.AddSingleton(_ => new HttpClient { BaseAddress = new(builder.HostEnvironment.BaseAddress) });
 
+CultureInfo.DefaultThreadCurrentCulture = new("hu-HU");
+CultureInfo.DefaultThreadCurrentUICulture = new("hu-HU");
+
 var app = builder.Build();
 
 await app.Services.GetRequiredService<AuthService>().Initialize();
 await app.Services.GetRequiredService<StartupService>().Initialize();
+
 
 await app.RunAsync();

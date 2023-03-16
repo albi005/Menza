@@ -19,6 +19,9 @@ builder.Services.AddScoped<IRepository>(sp => sp.GetRequiredService<Repository>(
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpContextAccessor();
 
+CultureInfo.DefaultThreadCurrentCulture = new("hu-HU");
+CultureInfo.DefaultThreadCurrentUICulture = new("hu-HU");
+
 WebApplication app = builder.Build();
 
 string serviceAccount = app.Configuration["Firebase:ServiceAccount"] ?? throw new("Firebase:ServiceAccount is not set");
