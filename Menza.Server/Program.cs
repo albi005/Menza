@@ -12,7 +12,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(o => o.AddDefaultPolicy(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
-builder.Services.AddDbContext<Db>(o => o.UseSqlite("Data Source=db.sqlite"));
+builder.Services.AddDbContext<Db>(o => o.UseSqlite(
+    builder.Configuration.GetConnectionString("Database") ?? throw new("Database connection string is not set")));
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<Repository>();
 builder.Services.AddScoped<IRepository>(sp => sp.GetRequiredService<Repository>());
