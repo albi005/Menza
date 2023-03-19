@@ -3,6 +3,7 @@
     --color-primary-hover: #494f22;
     --color-on-primary: #ffffff;
     --color-rating: #a6ae6d;
+    --color-neutral: #464835;
 }
 
 html {
@@ -32,28 +33,44 @@ body {
 .surface {
     max-width: 432px;
     margin: 0 auto;
-    border-radius: 16px;
+    border-radius: 24px;
     padding: 16px;
     background-color: white;
     box-shadow: 0 10px 10px rgba(0, 0, 0, .3);
 }
 
-.rating-button {
-    background-color: transparent;
-    border: none;
+.rating-buttons input {
+    appearance: none !important;
+    margin: 0 0;
+    padding: 0 0;
+}
+
+.rating-buttons label {
+    font-variation-settings: 'FILL' 0, 'wght' 300;
     cursor: pointer;
-    font-size: 24px;
-    margin: 0;
-    padding: 0;
+    color: var(--color-neutral);
 }
 
-.rating-button:hover {
+.rating-buttons label:hover {
     color: var(--color-rating);
 }
 
-.active {
+.rating-buttons label:active {
+    font-variation-settings: 'wght' 600;
+}
+
+.rating-buttons input:checked + icon {
     color: var(--color-rating);
-    font-variation-settings: 'FILL' 1;
+    font-variation-settings: 'FILL' 1, 'wght' 300;
+}
+
+.rating-buttons input:checked + icon:hover {
+    color: var(--color-rating);
+    font-variation-settings: 'FILL' 1, 'wght' 300;
+}
+
+.rating-buttons input:checked + icon:active {
+    font-variation-settings: 'FILL' 1, 'wght' 600;
 }
 
 .scrim {
@@ -92,6 +109,7 @@ body {
     }
 }
 
+/* About page inline icons */
 .material-symbols-rounded.inline {
     font-size: 20px;
     font-variation-settings: 'opsz' 20;
@@ -102,6 +120,7 @@ body {
     user-select: none;
 }
 
+/* Blazor */
 #blazor-error-ui {
     background: white;
     bottom: 0;
@@ -114,6 +133,15 @@ body {
     z-index: 1000;
 }
 
+.loading-indicator {
+    height: 4px;
+    background-color: var(--color-primary);
+    width: var(--blazor-load-percentage);
+    position: fixed;
+    bottom: 0;
+}
+
+/* FAB */
 .fab {
     position: fixed;
     bottom: 16px;
@@ -139,6 +167,7 @@ body {
     box-shadow: 0 2px 2px rgba(0, 0, 0, .3);
 }
 
+/* Popup menu */
 .menu-button {
     fill: beige;
     cursor: pointer;
@@ -153,7 +182,8 @@ body {
     fill: #cdceb6;
 }
 
-.sign-in-button {
+/* Filled button */
+.filled-button {
     background-color: var(--color-primary);
     color: var(--color-on-primary);
     border-radius: 80px;
@@ -162,11 +192,11 @@ body {
     transition: background-color .2s;
 }
 
-.sign-in-button:hover {
+.filled-button:hover {
     background-color: var(--color-primary-hover);
 }
 
-.sign-in-button:active {
+.filled-button:active {
     background-color: var(--color-primary-hover);
 }
 
@@ -192,4 +222,56 @@ body {
     height: 0;
     overflow: hidden;
     transition: height 0.25s;
+    color: var(--color-neutral);
+}
+
+.highlight {
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 14px;
+    padding: 2px 8px;
+    margin-bottom: 4px;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+/* Icons */
+icon {
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+}
+
+.icon-group {
+    user-select: none;
+}
+
+star {
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    
+    font-variation-settings: 'FILL' 1;
+    color: var(--color-rating);
+    user-select: none;
 }

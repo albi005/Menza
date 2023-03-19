@@ -23,15 +23,19 @@
 
 @if (!_isPrerendering)
 {
-    <ScrollToNextMenuButton />
+    <ScrollToNextMenuButton/>
 
-    <About />
+    <About/>
 
     <Popup
         Close="@(() => { _isSigningIn = false; StateHasChanged(); })"
         IsVisible="@(_isSigningIn && !_authService.IsAuthenticated)">
-        <SignInMenu />
+        <SignInMenu/>
     </Popup>
+}
+else
+{
+    <div class="loading-indicator"></div>
 }
 
 @code {
@@ -54,7 +58,7 @@
 
         if (!ApplicationState.TryTakeFromJson<List<MenuAndRating>?>(nameof(IRepository.GetAll), out var prerendered))
             return;
-        
+
         _isPrerendering = false;
         _authService = ServiceProvider.GetRequiredService<AuthService>();
         _authService.Changed += async () =>
@@ -62,7 +66,7 @@
             bool justSignedIn = _isSigningIn && _authService.IsAuthenticated;
             _isSigningIn = false;
             _ = InvokeAsync(StateHasChanged);
-            
+
             if (!justSignedIn)
                 return;
             Console.WriteLine("Just signed in");
@@ -77,7 +81,7 @@
     {
         if (_isPrerendering || _authService.IsAuthenticated && _all == null)
             _all = await Repository.GetAll();
-        
+
         _nextMenu = _all?.FirstOrDefault(m => m.Date >= DateOnly.FromDateTime(DateTime.Now));
     }
 
