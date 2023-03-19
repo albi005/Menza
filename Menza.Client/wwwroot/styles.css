@@ -36,40 +36,44 @@ body {
     border-radius: 24px;
     padding: 16px;
     background-color: white;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, .3);
+    box-shadow: var(--shadow-5);
 }
 
-.rating-buttons input {
-    appearance: none !important;
-    margin: 0 0;
-    padding: 0 0;
+.rating-buttons.icon-group {
+    display: flex;
+    justify-content: start;
+    align-items: center;
 }
 
-.rating-buttons label {
+.rating-buttons icon {
     font-variation-settings: 'FILL' 0, 'wght' 300;
     cursor: pointer;
     color: var(--color-neutral);
+    width: 32px;
+    display: inline-block;
+    text-align: center;
+    line-height: 32px;
 }
 
-.rating-buttons label:hover {
+.rating-buttons icon:hover {
     color: var(--color-rating);
 }
 
-.rating-buttons label:active {
+.rating-buttons icon:active {
     font-variation-settings: 'wght' 600;
 }
 
-.rating-buttons input:checked + icon {
+.rating-buttons icon.checked {
     color: var(--color-rating);
     font-variation-settings: 'FILL' 1, 'wght' 300;
 }
 
-.rating-buttons input:checked + icon:hover {
+.rating-buttons icon.checked:hover {
     color: var(--color-rating);
     font-variation-settings: 'FILL' 1, 'wght' 300;
 }
 
-.rating-buttons input:checked + icon:active {
+.rating-buttons icon.checked:active {
     font-variation-settings: 'FILL' 1, 'wght' 600;
 }
 
@@ -124,7 +128,7 @@ body {
 #blazor-error-ui {
     background: white;
     bottom: 0;
-    box-shadow: 0 10px 10px rgba(0, 0, 0, .3);
+    box-shadow: var(--shadow-3);
     display: none;
     left: 0;
     padding: 0.6rem 1.25rem 0.7rem 1.25rem;
@@ -149,37 +153,67 @@ body {
     width: 56px;
     height: 56px;
     border: none;
-    border-radius: 50%;
+    border-radius: 16px;
     background-color: var(--color-primary);
     color: var(--color-on-primary);
     cursor: pointer;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, .3);
-    transition: background-color .2s, box-shadow .2s;
+    box-shadow: var(--shadow-3);
+    transition: background-color .2s, box-shadow .2s, font-variation-settings .2s;
+    font-variation-settings: 'wght' 400;
 }
 
 .fab:hover {
     background-color: var(--color-primary-hover);
-    box-shadow: 0 8px 8px rgba(0, 0, 0, .3);
+    box-shadow: var(--shadow-4);
+    font-variation-settings: 'wght' 600;
 }
 
 .fab:active {
     background-color: var(--color-primary-hover);
-    box-shadow: 0 2px 2px rgba(0, 0, 0, .3);
+    box-shadow: var(--shadow-2);
+    font-variation-settings: 'wght' 400;
 }
 
 /* Popup menu */
-.menu-button {
+.menu-button path {
     fill: beige;
     cursor: pointer;
     transition: fill .2s, filter .2s;
 }
 
-.menu-button:hover {
+.menu-button path:hover {
     fill: #e4e4cc;
 }
 
-.menu-button:active {
+.menu-button path:active {
     fill: #cdceb6;
+}
+
+.menu-button svg {
+    filter: drop-shadow(var(--shadow-1));
+    position: absolute;
+    transition: filter .2s;
+}
+
+.menu-button svg:has(:hover) {
+    filter: drop-shadow(var(--shadow-2));
+}
+
+.menu-button svg:has(:active) {
+    filter: drop-shadow(var(--shadow-0));
+}
+
+.menu-button div {
+    font-variation-settings: 'opsz' 40, 'wght' 400;
+    transition: font-variation-settings .2s;
+}
+
+.menu-button svg:has(path:hover) + div {
+    font-variation-settings: 'opsz' 40, 'wght' 600;
+}
+
+.menu-button svg:has(path:active) + div {
+    font-variation-settings: 'opsz' 40, 'wght' 400;
 }
 
 /* Filled button */
@@ -214,7 +248,7 @@ body {
     transform: translate(-50%, -50%);
     width: calc(100% - 64px);
     background-color: beige;
-    box-shadow: 0 0 0 rgba(0, 0, 0, .3);
+    box-shadow: var(--shadow-0);
     z-index: -1;
 }
 
@@ -250,6 +284,8 @@ icon {
     -webkit-font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
     display: inline-block;
+    
+    user-select: none;
 }
 
 .icon-group {
@@ -274,4 +310,15 @@ star {
     font-variation-settings: 'FILL' 1;
     color: var(--color-rating);
     user-select: none;
+}
+
+/* Shadows */
+:root {
+    --shadow-0: 0 0 0 rgba(0, 0, 0, .3);
+    --shadow-1: 0.33333334px 0.6666667px 1.4166666px rgba(0, 0, 0, .3);
+    --shadow-2: 1px 2px 4.25px rgba(0, 0, 0, .3);
+    --shadow-3: 2px 4px 8.5px rgba(0, 0, 0, .3);
+    --shadow-4: 2.6666667px 5.3333335px 11.333333px rgba(0, 0, 0, .3);
+    --shadow-5: 4px 8px 17px rgba(0, 0, 0, .3);
+    --shadow-99: 33px 66px 140.25px rgba(0, 0, 0, .3);
 }

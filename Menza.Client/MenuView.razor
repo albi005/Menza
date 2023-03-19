@@ -56,28 +56,11 @@
                         }
                     </div>
                     <div class="rating-buttons icon-group">
-                        <InputRadioGroup TValue="byte" @bind-Value="@_rating" @bind-Value:after="Rate">
-                            <label>
-                                <InputRadio Value="1" TValue="byte"/>
-                                <icon>sentiment_very_dissatisfied</icon>
-                            </label>
-                            <label>
-                                <InputRadio Value="2" TValue="byte"/>
-                                <icon>sentiment_dissatisfied</icon>
-                            </label>
-                            <label>
-                                <InputRadio Value="3" TValue="byte"/>
-                                <icon>sentiment_neutral</icon>
-                            </label>
-                            <label>
-                                <InputRadio Value="4" TValue="byte"/>
-                                <icon>sentiment_satisfied</icon>
-                            </label>
-                            <label>
-                                <InputRadio Value="5" TValue="byte"/>
-                                <icon>sentiment_very_satisfied</icon>
-                            </label>
-                        </InputRadioGroup>
+                        <icon class="@(GetIsChecked(1))" @onclick="@(() => Rate(1))">sentiment_very_dissatisfied</icon>
+                        <icon class="@(GetIsChecked(2))" @onclick="@(() => Rate(2))">sentiment_dissatisfied</icon>
+                        <icon class="@(GetIsChecked(3))" @onclick="@(() => Rate(3))">sentiment_neutral</icon>
+                        <icon class="@(GetIsChecked(4))" @onclick="@(() => Rate(4))">sentiment_satisfied</icon>
+                        <icon class="@(GetIsChecked(5))" @onclick="@(() => Rate(5))">sentiment_very_satisfied</icon>
                     </div>
                     @if (Menu.Rating.HasValue)
                     {
@@ -92,8 +75,6 @@
 </div>
 
 @code {
-    private byte _rating;
-
     [Parameter]
     public bool IsNext { get; set; }
 
@@ -109,20 +90,16 @@
     [EditorRequired]
     public Func<Rating, bool> SaveRating { get; set; } = null!;
 
-    protected override void OnParametersSet()
+    private void Rate(byte rating)
     {
-        _rating = Menu.MyRating ?? 0;
-    }
-
-    private void Rate()
-    {
-        bool saved = SaveRating(new(Menu.Date, _rating));
-        if (!saved) return;
+        bool saved = SaveRating(new(Menu.Date, rating));
+        if (!saved)
+            return;
 
         if (!Menu.Rating.HasValue)
         {
-            Menu.Rating = _rating;
-            Menu.MyRating = _rating;
+            Menu.Rating = rating;
+            Menu.MyRating = rating;
             Menu.RatingCount = 1;
         }
         else
@@ -133,19 +110,19 @@
                 sum -= Menu.MyRating.Value;
                 Menu.RatingCount--;
             }
-            sum += _rating;
+            sum += rating;
             Menu.RatingCount++;
             Menu.Rating = sum / Menu.RatingCount;
-            Menu.MyRating = _rating;
+            Menu.MyRating = rating;
         }
         StateHasChanged();
     }
 
-    private string? GetIsActive(int rating)
+    private string? GetIsChecked(int rating)
     {
         if (!Menu.MyRating.HasValue) return null;
         bool isActive = Math.Abs(Menu.MyRating.Value - rating) < 0.5;
-        return isActive ? "active" : null;
+        return isActive ? "checked" : null;
     }
 
 }

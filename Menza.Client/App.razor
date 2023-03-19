@@ -71,6 +71,7 @@ else
                 return;
             Console.WriteLine("Just signed in");
             _all = await Repository.GetAll();
+            _nextMenu = _all?.FirstOrDefault(m => m.Date >= DateOnly.FromDateTime(DateTime.Now));
             _ = InvokeAsync(StateHasChanged);
         };
         _all = ServiceProvider.GetRequiredService<StartupService>().Menus ?? prerendered;

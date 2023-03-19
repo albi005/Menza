@@ -1,9 +1,13 @@
 using System.Globalization;
+using System.Text;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Menza.Client;
 using Menza.Server;
 using Menza.Shared;
 using Microsoft.EntityFrameworkCore;
+using AuthService = Menza.Server.AuthService;
+using Repository = Menza.Server.Repository;
 
 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("hu");
 
@@ -47,5 +51,13 @@ app.MapGet("/all", async (Repository repository) => await repository.GetAll());
 app.MapPost("/votes", async (Rating rating, Repository repository) => await repository.Rate(rating));
 app.MapRazorPages();
 app.MapControllers();
+
+app.MapGet("/shadows", () =>
+{
+    StringBuilder response = new();
+    for (int i = 0; i <= 24; i++)
+        response.AppendLine($"--shadow-{i}: {Shadow.ComputeCssShadow(i)};");
+    return response.ToString();
+});
 
 app.Run();
