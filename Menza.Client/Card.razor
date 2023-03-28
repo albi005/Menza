@@ -1,0 +1,49 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject CardService CardService
+
+<Fab Icon="barcode_scanner" Left="true" OnClick="@(() => _menuVisible = true)"/>
+
+<Popup IsVisible="@_menuVisible" Close="@(() => _menuVisible = false)">
+    <div class="surface">
+        @if (CardService.CardNumber != null)
+        {
+            <div style="margin: 32px 0">
+                <Barcode Data="@CardService.CardNumber"/>
+            </div>
+            <button class="filled-button" @onclick="@(async () => await CardService.SetCardNumber(null))">
+                Törlés
+            </button>
+        }
+        else
+        {
+            <EditForm Model="@_model" OnValidSubmit="@Submit">
+                <ValidationMessage For="@(() => _model.CardNumber)"/>
+                <InputNumber min="1000000000" max="1900000000" TValue="long?" @bind-Value="_model.CardNumber" placeholder="Kártyaszám"/>
+                <button class="filled-button" type="submit">Mentés</button>
+            </EditForm>
+        }
+    </div>
+</Popup>
+
+@code {
+    private bool _menuVisible = false;
+
+    private Model _model = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CardService.Initialize();
+    }
+
+    private async Task Submit()
+    {
+        await CardService.SetCardNumber((ulong?)_model.CardNumber);
+    }
+
+    private class Model
+    {
+        [Required]
+        // [Range(1_000_000_000, 1_900_000_000, ErrorMessage = "A kártyaszám nem megfelelő formátumú.")]
+        public long? CardNumber { get; set; }
+    }
+}

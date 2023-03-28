@@ -13,6 +13,7 @@ builder.Services.AddSingleton<AuthService>();
 builder.Services.AddSingleton<IRepository, Repository>();
 builder.Services.AddSingleton<StartupService>();
 builder.Services.AddSingleton(_ => new HttpClient { BaseAddress = new(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddSingleton<CardService>();
 
 CultureInfo.DefaultThreadCurrentCulture = new("hu-HU");
 CultureInfo.DefaultThreadCurrentUICulture = new("hu-HU");

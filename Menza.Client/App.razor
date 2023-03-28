@@ -32,11 +32,14 @@
         IsVisible="@(_isSigningIn && !_authService.IsAuthenticated)">
         <SignInMenu/>
     </Popup>
+    
+    <Card />
 }
 else
 {
     <div class="loading-indicator"></div>
 }
+
 
 @code {
     private ElementReference _list;

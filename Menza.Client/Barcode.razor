@@ -1,0 +1,51 @@
+﻿@{
+    List<int> codes = _code128.Codes;
+
+    const int BarWeight = 2;
+    const int cQuietWidth = 10;
+
+    int width = ((codes.Count - 3) * 11 + 35) * BarWeight;
+    int height = (int)Math.Ceiling(width * .15F);
+
+    // skip quiet zone
+    width += 2 * cQuietWidth * BarWeight; // on both sides
+    int cursor = cQuietWidth * BarWeight;
+}
+
+<svg width="@width" height="@height" xmlns="http://www.w3.org/2000/svg">
+    <rect height="@height" width="@width" fill="white"/>
+    @foreach (int code in codes)
+    {
+        // take the bars two at a time: a black and a white
+        for (int bar = 0; bar < 8; bar += 2)
+        {
+            int barWidth = Code128Code.Patterns[code, bar] * BarWeight;
+            int spcWidth = Code128Code.Patterns[code, bar + 1] * BarWeight;
+
+            // if width is zero, don't try to draw it
+            if (barWidth > 0)
+            {
+                <rect x="@cursor" y="0" width="@barWidth" height="@height" fill="black"/>
+            }
+
+            // advance cursor beyond this pair
+            cursor += barWidth + spcWidth;
+        }
+    }
+</svg>
+
+@code
+{
+    private Code128 _code128 = new();
+
+    [Parameter]
+    public ulong? Data { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (Data != null)
+            _code128.Update(Data.Value);
+    }
+
+}

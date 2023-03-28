@@ -1,0 +1,16 @@
+﻿<button class="fab fade-in" @onclick="OnClick" style="@(Left ? "left: 16px": "")">
+    <span class="material-symbols-rounded">
+        @Icon
+    </span>
+</button>
+
+@code {
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+    
+    [Parameter]
+    public string? Icon { get; set; }
+    
+    [Parameter]
+    public bool Left { get; set; }
+}

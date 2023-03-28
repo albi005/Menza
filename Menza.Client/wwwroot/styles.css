@@ -87,6 +87,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1;
 }
 
 .fade-in {
@@ -171,7 +172,7 @@ body {
 .fab:active {
     background-color: var(--color-primary-hover);
     box-shadow: var(--shadow-2);
-    font-variation-settings: 'wght' 400;
+    font-variation-settings: 'wght' 200;
 }
 
 /* Popup menu */
