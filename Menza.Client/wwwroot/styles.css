@@ -4,6 +4,8 @@
     --color-on-primary: #ffffff;
     --color-rating: #a6ae6d;
     --color-neutral: #464835;
+    --color-surface: #ffffff;
+    --color-surface-hover: #e4e4cc;
 }
 
 html {
@@ -233,6 +235,24 @@ body {
 
 .filled-button:active {
     background-color: var(--color-primary-hover);
+}
+
+/* Text button */
+.text-button {
+    color: var(--color-primary);
+    border-radius: 80px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color .2s;
+    background-color: var(--color-surface);
+}
+
+.text-button:hover {
+    background-color: var(--color-surface-hover);
+}
+
+.text-button:active {
+    background-color: var(--color-surface-hover);
 }
 
 /* Menu card */

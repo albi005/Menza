@@ -10,7 +10,7 @@
             <div style="margin: 32px 0">
                 <Barcode Data="@CardService.CardNumber"/>
             </div>
-            <button class="filled-button" @onclick="@(async () => await CardService.SetCardNumber(null))">
+            <button class="text-button" @onclick="@(async () => await CardService.SetCardNumber(null))">
                 Törlés
             </button>
         }
