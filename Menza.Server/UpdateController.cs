@@ -15,7 +15,7 @@ public class UpdateController : ControllerBase
     }
 
     [HttpGet]
-    public async Task Update([FromQuery] string sessionId)
+    public async Task<IActionResult> Update([FromQuery] string sessionId)
     {
         HttpClient httpClient = new();
 
@@ -46,5 +46,7 @@ public class UpdateController : ControllerBase
 
             await _repository.UpdateMonth(date.Year, date.Month, days);
         }
+
+        return Ok("Ok");
     }
 }
