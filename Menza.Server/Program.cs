@@ -13,6 +13,12 @@ CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("hu");
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Services
+    .AddOptions<EnyCredentials>()
+    .Bind(builder.Configuration.GetSection("EnyCredentials"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
 builder.Services.AddCors(o => o.AddDefaultPolicy(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
@@ -23,19 +29,23 @@ builder.Services.AddScoped<Repository>();
 builder.Services.AddScoped<IRepository>(sp => sp.GetRequiredService<Repository>());
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHostedService<UpdateService>();
 
 CultureInfo.DefaultThreadCurrentCulture = new("hu-HU");
 CultureInfo.DefaultThreadCurrentUICulture = new("hu-HU");
 
 WebApplication app = builder.Build();
 
-string serviceAccount = app.Configuration["Firebase:ServiceAccount"] ?? throw new("Firebase:ServiceAccount is not set");
-FirebaseApp.Create(new AppOptions
+string? serviceAccount = app.Configuration["Firebase:ServiceAccount"];
+if (serviceAccount != null)
 {
-    Credential = serviceAccount.StartsWith('{')
-        ? GoogleCredential.FromJson(serviceAccount)
-        : GoogleCredential.FromFile(serviceAccount),
-});
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = serviceAccount.StartsWith('{')
+            ? GoogleCredential.FromJson(serviceAccount)
+            : GoogleCredential.FromFile(serviceAccount),
+    });
+}
 
 AsyncServiceScope scope = app.Services.CreateAsyncScope();
 await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
