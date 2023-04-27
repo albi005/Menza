@@ -20,6 +20,9 @@ export async function signOut() {
 
 export async function signIn() {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
     await signInWithPopup(auth, provider)
 }
 
