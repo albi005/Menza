@@ -1,4 +1,4 @@
-﻿<button class="fab fade-in" @onclick="OnClick" style="@(Left ? "left: 16px": "")">
+﻿<button class="fab fade-in" @onclick="OnClick" style="@(Left ? "left: 16px" : "")" id="@Id">
     <span class="material-symbols-rounded">
         @Icon
     </span>
@@ -13,4 +13,7 @@
     
     [Parameter]
     public bool Left { get; set; }
+    
+    [Parameter]
+    public string? Id { get; set; }
 }

@@ -18,6 +18,7 @@ public class AuthService
 
         try
         {
+            if (FirebaseAuth.DefaultInstance == null) return null;
             FirebaseToken decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(idToken);
             Debug.WriteLine(decodedToken.Uid);
             string? email = decodedToken.Claims["email"]?.ToString();

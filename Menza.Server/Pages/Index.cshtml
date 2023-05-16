@@ -1,22 +1,23 @@
 ﻿@page
+@using Menza.Client
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Menza</title>
-    <base href="/" />
-    <link href="styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <base href="/"/>
+    <link href="styles.css" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" href="favicon.ico"/>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@200..1000&display=swap">
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300..600,0..1,0" />
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,300..600,0..1,0"/>
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -28,40 +29,53 @@
 
 <body>
 
-<component type="typeof(Menza.Client.App)" render-mode="WebAssemblyPrerendered" />
-<persist-component-state />
+<component type="typeof(App)" render-mode="WebAssemblyPrerendered"/>
+<persist-component-state/>
 
 <script>
-    window.skipToNextMenu = _ => document.getElementById('next').scrollIntoView({behavior: "auto", block: "center"});
-    window.scrollToNextMenu = _ => document.getElementById('next').scrollIntoView({behavior: "smooth", block: "center"});
+    function scrollToNext(behavior) {
+        let next = document.getElementById('next');
+        document.firstElementChild.scroll({
+            behavior,
+            top: next.offsetTop + next.clientHeight/2 - window.innerHeight/2
+        });
+    }
+    window.skipToNextMenu = _ => scrollToNext('auto');
+    window.scrollToNextMenu = _ => scrollToNext('smooth');
     
     let centerCardStyle = document.createElement('style');
     document.head.appendChild(centerCardStyle);
     
     window.onscroll = _ => {        
-      const menus = document.getElementById('list').children;
-      const center = window.innerHeight / 2;
-      let i = 0;
-      for (const child of menus) {
-        const rect = child.getBoundingClientRect();
-        const isSelected = rect.top <= center && rect.bottom > center;
-        if (isSelected) break;
-        i++;
-      }
-      if (i >= menus.length) i = menus.length - 1;
-      
-      let menu = menus[i];
-      let collapseHeight = menu.querySelector('.collapse').children[0].clientHeight;
-      centerCardStyle.innerHTML = `
-        .block:nth-child(${i+1}) .card {
-          background-color: white;
-          box-shadow: var(--shadow-3);
-          z-index: 0;
+        const menus = document.getElementById('list').children;
+        const center = window.innerHeight / 2;
+        let i = 0;
+        for (const child of menus) {
+            const rect = child.getBoundingClientRect();
+            const isSelected = rect.top <= center && rect.bottom > center;
+            if (isSelected) break;
+            i++;
         }
-        .block:nth-child(${i+1}) .card .collapse {
-          height: ${collapseHeight}px;
+        if (i >= menus.length) i = menus.length - 1;
+
+        let highlightedMenu = menus[i];
+        let collapseHeight = highlightedMenu.querySelector('.collapse').children[0].clientHeight;
+        centerCardStyle.innerHTML = `
+            .block:nth-child(${i+1}) .card {
+              background-color: white;
+              box-shadow: var(--shadow-3);
+              z-index: 0;
+            }
+            .block:nth-child(${i+1}) .card .collapse {
+              height: ${collapseHeight}px;
+            }
+            `;
+
+        let scrollToNextMenuButton = document.getElementById('scrollToNextMenuButton');
+        if (scrollToNextMenuButton) {
+            let showScrollToNextMenuButton = highlightedMenu !== document.getElementById('next');
+            scrollToNextMenuButton.style.display = showScrollToNextMenuButton ? 'block' : 'none';
         }
-      `;
     };
     
     document.addEventListener('DOMContentLoaded', _ => {
@@ -78,6 +92,7 @@
     
     window.skipToNextMenu();
     window.onscroll(null);
+
 </script>
 
 <div id="blazor-error-ui">

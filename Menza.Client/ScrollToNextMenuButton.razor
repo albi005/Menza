@@ -1,6 +1,6 @@
 ﻿@inject IJSRuntime Js
 
-<Fab Icon="today" OnClick="@OnClick"></Fab>
+<Fab Icon="today" OnClick="@OnClick" Id="scrollToNextMenuButton"></Fab>
 @code {
     private void OnClick() => _ = Js.InvokeVoidAsync("scrollToNextMenu");
 }
