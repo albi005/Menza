@@ -21,8 +21,12 @@ public class UpdateService : BackgroundService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Update(stoppingToken);
-                
+                try
+                {
+                    await Update(stoppingToken);
+                }
+                catch { /*_*/ }
+
                 DateTime now = DateTime.Now;
                 DateTime next = now.Date.AddDays(1).AddHours(5);
                 TimeSpan delay = next - now;

@@ -15,8 +15,12 @@ public class AuthService
     
     public async Task Initialize()
     {
-        await _jsRuntime.InvokeVoidAsync("auth.registerCredentialHandler", DotNetObjectReference.Create(this));
-        AccessToken = await _jsRuntime.InvokeAsync<string?>("auth.getAccessToken");
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("auth.registerCredentialHandler", DotNetObjectReference.Create(this));
+            AccessToken = await _jsRuntime.InvokeAsync<string?>("auth.getAccessToken");
+        }
+        catch { /*_*/ }
     }
 
     [JSInvokable]

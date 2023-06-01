@@ -78,6 +78,15 @@
         }
     };
     
+    const observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+            // if (entry.isIntersecting)
+                // entry.
+        }
+    }, {
+        rootMargin: '0px 0px -50% 0px',
+    });
+    
     document.addEventListener('DOMContentLoaded', _ => {
       const style = document.createElement('style');
       style.innerHTML = `
@@ -118,8 +127,9 @@
     
     window.takeOver = async function() {
         window.onscroll(null);
-    }
-    
+    }    
+</script>
+<script>
     Blazor.start();
 </script>
 </body>
