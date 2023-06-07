@@ -6,7 +6,7 @@
 
 @implements IDisposable
 
-<div style="height: 100%; padding: 50vh 0" @ref="_list" id="list">
+<div style="padding: 50vh 0" @ref="_list" id="list">
     @if (_all != null)
     {
         @foreach (MenuAndRating menu in _all)
@@ -42,7 +42,6 @@ else
 {
     <div class="loading-indicator"></div>
 }
-
 
 @code {
     private ElementReference _list;
@@ -103,16 +102,19 @@ else
             StateHasChanged();
             return false;
         }
+        string menuId = rating.Date == _nextMenu?.Date
+            ? "next"
+            : "menu" + rating.Date.ToString("yyMMdd");
+        _ = JsRuntime.InvokeVoidAsync("onRate", menuId);
         StateHasChanged();
-        _ = JsRuntime.InvokeVoidAsync("window.onscroll", null);
         _ = Repository.Rate(rating);
         return true;
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
-        _ = JsRuntime.InvokeVoidAsync("takeOver");
-        return base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+            _ = JsRuntime.InvokeVoidAsync("observe");
     }
 
     public void Dispose() => _subscription.Dispose();

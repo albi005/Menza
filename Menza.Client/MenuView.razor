@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @using Menza.Shared
 
-<div class="block" id="@(IsNext ? "next" : null)">
+<div class="block" id="@(IsNext ? "next" : "menu" + Menu.Date.ToString("yyMMdd"))">
     <div class="surface card">
         <div>
             @if (IsNext)

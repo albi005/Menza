@@ -343,3 +343,13 @@ star {
     --shadow-5: 4px 8px 17px rgba(0, 0, 0, .3);
     --shadow-99: 33px 66px 140.25px rgba(0, 0, 0, .3);
 }
+
+/* Star animations */
+.no-star star {
+    font-size: 0;
+}
+
+.expand-stars star {
+    font-size: 24px;
+    transition: font-size .2s;
+}

@@ -35,57 +35,56 @@
 <script>
     function scrollToNext(behavior) {
         let next = document.getElementById('next');
+        if (!next) return;
         document.firstElementChild.scroll({
             behavior,
             top: next.offsetTop + next.clientHeight/2 - window.innerHeight/2
         });
     }
-    window.skipToNextMenu = _ => scrollToNext('auto');
     window.scrollToNextMenu = _ => scrollToNext('smooth');
     
-    let centerCardStyle = document.createElement('style');
-    document.head.appendChild(centerCardStyle);
-    
-    window.onscroll = _ => {        
-        const menus = document.getElementById('list').children;
-        const center = window.innerHeight / 2;
-        let i = 0;
-        for (const child of menus) {
-            const rect = child.getBoundingClientRect();
-            const isSelected = rect.top <= center && rect.bottom > center;
-            if (isSelected) break;
-            i++;
-        }
-        if (i >= menus.length) i = menus.length - 1;
+    scrollToNext('auto');
 
-        let highlightedMenu = menus[i];
-        let collapseHeight = highlightedMenu.querySelector('.collapse').children[0].clientHeight;
-        centerCardStyle.innerHTML = `
-            .block:nth-child(${i+1}) .card {
+    let highlightedCardStyleElement = document.createElement('style');
+    document.head.appendChild(highlightedCardStyleElement);
+    
+    function setHighlight(card) {
+        highlightedCardStyleElement.innerHTML = `
+            #${card.id} .card {
               background-color: white;
               box-shadow: var(--shadow-3);
               z-index: 0;
             }
-            .block:nth-child(${i+1}) .card .collapse {
-              height: ${collapseHeight}px;
+            #${card.id} .card .collapse {
+              height: ${card.querySelector('.collapse').children[0].clientHeight}px;
             }
-            `;
-
-        let scrollToNextMenuButton = document.getElementById('scrollToNextMenuButton');
-        if (scrollToNextMenuButton) {
-            let showScrollToNextMenuButton = highlightedMenu !== document.getElementById('next');
-            scrollToNextMenuButton.style.display = showScrollToNextMenuButton ? 'block' : 'none';
-        }
-    };
+        `;
+    }
     
+        
     const observer = new IntersectionObserver(entries => {
         for (const entry of entries) {
-            // if (entry.isIntersecting)
-                // entry.
+            if (entry.isIntersecting) {
+                setHighlight(entry.target);
+            }
+            
+            if (entry.target.id === 'next') {
+                let scrollToNextMenuButton = document.getElementById('scrollToNextMenuButton');
+                if (scrollToNextMenuButton) {
+                    let showScrollToNextMenuButton = !entry.isIntersecting;
+                    scrollToNextMenuButton.style.display = showScrollToNextMenuButton ? 'block' : 'none';
+                }
+            }
         }
     }, {
-        rootMargin: '0px 0px -50% 0px',
+        rootMargin: "-50% 0px -50% 0px",
     });
+    function observe() {
+        for (const element of document.getElementById('list').children) {
+            observer.observe(element);
+        }
+    }
+    observe();
     
     document.addEventListener('DOMContentLoaded', _ => {
       const style = document.createElement('style');
@@ -97,11 +96,20 @@
       document.head.appendChild(style);
     });
     
-    // document.addEventListener('DOMContentLoaded') = _ => console.log('loaded');
-    
-    window.skipToNextMenu();
-    window.onscroll(null);
-
+    function onRate(menuId) {
+        console.log('onRate', menuId);
+        let menu = document.getElementById(menuId);
+        let stars = menu.querySelectorAll('star');
+        for (const star of stars) {
+            star.style.fontSize = '24px';
+        }
+        menu.classList.remove('expand-stars');
+        menu.classList.add('no-star');
+        requestAnimationFrame(_ => {
+            menu.classList.add('expand-stars');
+            setHighlight(menu);
+        });        
+    }
 </script>
 
 <div id="blazor-error-ui">
@@ -124,10 +132,6 @@
         signIn,
         signOut,
     };
-    
-    window.takeOver = async function() {
-        window.onscroll(null);
-    }    
 </script>
 <script>
     Blazor.start();
