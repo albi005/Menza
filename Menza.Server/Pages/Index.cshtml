@@ -56,12 +56,11 @@
               z-index: 0;
             }
             #${card.id} .card .collapse {
-              height: ${card.querySelector('.collapse').children[0].clientHeight}px;
+              height: ${card.querySelector('.collapse')?.children[0].clientHeight}px;
             }
         `;
     }
     
-        
     const observer = new IntersectionObserver(entries => {
         for (const entry of entries) {
             if (entry.isIntersecting) {
@@ -77,6 +76,7 @@
             }
         }
     }, {
+        root: document,
         rootMargin: "-50% 0px -50% 0px",
     });
     function observe() {
