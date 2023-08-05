@@ -4,7 +4,7 @@
 <div class="block" id="@(IsNext ? "next" : "menu" + Menu.Date.ToString("yyMMdd"))">
     <div class="surface card">
         <div>
-            @if (IsNext)
+            @if (IsNext && Menu.Date >= DateOnly.FromDateTime(DateTime.Today))
             {
                 @if (Menu.Date == DateOnly.FromDateTime(DateTime.Today))
                 {
