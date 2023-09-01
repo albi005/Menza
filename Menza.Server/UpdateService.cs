@@ -59,7 +59,7 @@ public class UpdateService : BackgroundService
                 new(HttpMethod.Post, "https://tata.eny.hu/index.php?m=directapi");
             httpRequestMessage.Headers.Add("X-Requested-With", "XMLHttpRequest");
             httpRequestMessage.Content = new StringContent(
-                $$"""{"action":"studentorder","method":"loadOrders","tid":1,"type":"rpc","data":["2867","{{date.Year}}-{{date.Month:00}}-01"]}""");
+                $$"""{"action":"studentorder","method":"loadOrders","tid":1,"type":"rpc","data":["{{_credentials.StudentId}}","{{date.Year}}-{{date.Month:00}}-01"]}""");
 
             HttpResponseMessage httpResponseMessage = await httpClient.SendAsync(httpRequestMessage, ct);
             if (!httpResponseMessage.IsSuccessStatusCode) continue;

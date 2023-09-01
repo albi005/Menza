@@ -9,4 +9,7 @@ public class EnyCredentials
     
     [Required]
     public string Password { get; set; } = null!;
+    
+    [Required]
+    public string StudentId { get; set; } = null!;
 }
