@@ -19,9 +19,9 @@ builder.Services
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-builder.Services.AddCors(o => o.AddDefaultPolicy(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 builder.Services.AddControllers();
-builder.Services.AddRazorPages();
+builder.Services.AddRazorComponents()
+    .AddInteractiveWebAssemblyComponents();
 builder.Services.AddDbContext<Db>(o => o.UseSqlite(
     builder.Configuration.GetConnectionString("Database") ?? throw new("Database connection string is not set")));
 builder.Services.AddMemoryCache();
@@ -51,17 +51,27 @@ AsyncServiceScope scope = app.Services.CreateAsyncScope();
 await scope.ServiceProvider.GetRequiredService<Db>().Database.MigrateAsync();
 await scope.DisposeAsync();
 
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
+if (app.Environment.IsDevelopment())
+    app.UseWebAssemblyDebugging();
+else
+{
+    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+    app.UseHttpsRedirection();
+}
 
-app.UseRouting();
-app.UseCors();
+app.UseStaticFiles();
+app.UseAntiforgery();
+
+app.MapRazorComponents<Menza.Server.Components.Index>()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(App).Assembly);
+
 app.MapGet("/next", async (Repository repository) => await repository.GetNext());
 app.MapGet("/all", async (Repository repository) => await repository.GetAll());
 app.MapPost("/votes", async (Rating rating, Repository repository) => await repository.Rate(rating));
-app.MapRazorPages();
 app.MapControllers();
-
 app.MapGet("/shadows", () =>
 {
     StringBuilder response = new();

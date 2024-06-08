@@ -1,7 +1,4 @@
-﻿@page
-@using Menza.Client
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
+﻿@page "/"
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,12 +22,13 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#869316">
     <meta name="theme-color" content="#f5f5dc">
+
+    <HeadOutlet @rendermode="InteractiveWebAssembly"/>
 </head>
 
 <body>
 
-<component type="typeof(App)" render-mode="WebAssemblyPrerendered"/>
-<persist-component-state/>
+<App @rendermode="InteractiveWebAssembly" />
 
 <script>
     function scrollToNext(behavior) {
@@ -116,7 +114,7 @@
     Valami nem jó.
 </div>
 
-<script src="_framework/blazor.webassembly.js" autostart="false"></script>
+<script src="_framework/blazor.web.js" autostart="false"></script>
 <script type="module">
     import { getAccessToken, signOut, signIn, registerOnAccessTokenChanged } from "./auth.js";
     
